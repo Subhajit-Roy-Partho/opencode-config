@@ -1,0 +1,22 @@
+{
+  "name": "opencode-config",
+  "private": true,
+  "description": "Portable OpenCode configuration optimized for large, complex projects with NanoGPT.",
+  "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "install:deps": "npm install --no-fund --no-audit",
+    "verify": "opencode debug config"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "2.0.37",
+    "opencode-supermemory": "2.0.4",
+    "pyright": "1.1.408",
+    "typescript": "5.9.3",
+    "typescript-language-server": "5.1.3",
+    "vscode-langservers-extracted": "4.10.0",
+    "@opencode-ai/plugin": "1.3.0"
+  }
+}

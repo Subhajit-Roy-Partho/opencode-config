@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+candidates=(
+  "clangd"
+  "/opt/homebrew/opt/llvm/bin/clangd"
+  "/usr/local/opt/llvm/bin/clangd"
+  "/Library/Developer/CommandLineTools/usr/bin/clangd"
+  "/usr/bin/clangd"
+)
+
+for candidate in "${candidates[@]}"; do
+  if [[ "$candidate" == */* ]]; then
+    if [[ -x "$candidate" ]]; then
+      exec "$candidate" "$@"
+    fi
+  elif command -v "$candidate" >/dev/null 2>&1; then
+    exec "$candidate" "$@"
+  fi
+done
+
+echo "clangd was not found. Install Xcode Command Line Tools or LLVM, then rerun." >&2
+exit 1

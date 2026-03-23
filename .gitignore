@@ -1,0 +1,7 @@
+local/
+node_modules/
+npm-debug.log*
+supermemory.json
+supermemory.jsonc
+.DS_Store
+*.log

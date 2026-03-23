@@ -1,0 +1,383 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Large-repo defaults favor durable context and lower local overhead.
+  "enabled_providers": ["nano-gpt"],
+  "model": "nano-gpt/zai-org/glm-5:thinking",
+  "small_model": "nano-gpt/google/gemini-3-flash-preview",
+  "default_agent": "build",
+  "share": "manual",
+  "autoupdate": "notify",
+  "snapshot": false,
+  "logLevel": "INFO",
+
+  "experimental": {
+    "batch_tool": true,
+    "mcp_timeout": 20000
+  },
+
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 24000
+  },
+
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      ".cache/**",
+      ".next/**",
+      ".turbo/**",
+      ".venv/**",
+      ".pytest_cache/**",
+      ".mypy_cache/**",
+      "__pycache__/**",
+      "node_modules/**",
+      "vendor/**",
+      "coverage/**",
+      "dist/**",
+      "build/**",
+      "out/**",
+      "target/**",
+      "DerivedData/**",
+      "Pods/**"
+    ]
+  },
+
+  "instructions": [
+    "./instructions/core.md",
+    "./instructions/large-projects.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".cursor/rules/*.md",
+    ".cursor/rules/*.mdc"
+  ],
+
+  "provider": {
+    "nano-gpt": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "NanoGPT",
+      "options": {
+        "baseURL": "{file:~/.config/opencode/local/nanogpt-base-url}",
+        "apiKey": "{file:~/.config/opencode/local/nanogpt-api-key}",
+        "timeout": 900000,
+        "chunkTimeout": 120000,
+        "setCacheKey": true
+      },
+      "models": {
+        "zai-org/glm-5": {
+          "id": "zai-org/glm-5",
+          "name": "GLM 5",
+          "family": "zhipu",
+          "attachment": false,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.3,
+            "output": 2.55
+          },
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "zai-org/glm-5:thinking": {
+          "id": "zai-org/glm-5:thinking",
+          "name": "GLM 5 Thinking",
+          "family": "zhipu",
+          "attachment": false,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.3,
+            "output": 2.55
+          },
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2.5": {
+          "id": "moonshotai/kimi-k2.5",
+          "name": "Kimi K2.5",
+          "family": "moonshot",
+          "attachment": true,
+          "reasoning": false,
+          "tool_call": true,
+          "cost": {
+            "input": 0.3,
+            "output": 1.9
+          },
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "moonshotai/kimi-k2.5:thinking": {
+          "id": "moonshotai/kimi-k2.5:thinking",
+          "name": "Kimi K2.5 Thinking",
+          "family": "moonshot",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.3,
+            "output": 1.9
+          },
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v3.2-speciale": {
+          "id": "deepseek/deepseek-v3.2-speciale",
+          "name": "DeepSeek V3.2 Speciale",
+          "family": "deepseek",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": false,
+          "cost": {
+            "input": 0.28,
+            "output": 0.42
+          },
+          "limit": {
+            "context": 163000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v3.2": {
+          "id": "deepseek/deepseek-v3.2",
+          "name": "DeepSeek V3.2",
+          "family": "deepseek",
+          "attachment": true,
+          "reasoning": false,
+          "tool_call": true,
+          "cost": {
+            "input": 0.28,
+            "output": 0.42
+          },
+          "limit": {
+            "context": 163000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "deepseek/deepseek-v3.2:thinking": {
+          "id": "deepseek/deepseek-v3.2:thinking",
+          "name": "DeepSeek V3.2 Thinking",
+          "family": "deepseek",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.28,
+            "output": 0.42
+          },
+          "limit": {
+            "context": 163000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.2": {
+          "id": "openai/gpt-5.2",
+          "name": "GPT 5.2",
+          "family": "openai",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 1.75,
+            "output": 14
+          },
+          "limit": {
+            "context": 400000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-5.2-codex": {
+          "id": "openai/gpt-5.2-codex",
+          "name": "GPT 5.2 Codex",
+          "family": "openai",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 1.75,
+            "output": 14
+          },
+          "limit": {
+            "context": 400000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "google/gemini-3-flash-preview": {
+          "id": "google/gemini-3-flash-preview",
+          "name": "Gemini 3 Flash (Preview)",
+          "family": "google",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.5,
+            "output": 3
+          },
+          "limit": {
+            "context": 1048756,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "status": "beta"
+        }
+      }
+    }
+  },
+
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
+      "timeout": 20000
+    },
+    "gh_grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true,
+      "timeout": 15000
+    }
+  },
+
+  "plugin": [
+    "opencode-supermemory"
+  ],
+
+  "lsp": {
+    "clangd": {
+      "command": ["{env:HOME}/.config/opencode/bin/clangd-lsp", "--background-index", "--clang-tidy", "--header-insertion=iwyu"],
+      "extensions": [".c", ".cc", ".cpp", ".cxx", ".h", ".hh", ".hpp", ".hxx"]
+    },
+    "pyright": {
+      "command": ["{env:HOME}/.config/opencode/bin/python-lsp", "--stdio"],
+      "extensions": [".py", ".pyi"],
+      "initialization": {
+        "python": {
+          "analysis": {
+            "autoImportCompletions": true,
+            "diagnosticMode": "workspace",
+            "typeCheckingMode": "basic",
+            "useLibraryCodeForTypes": true
+          }
+        }
+      }
+    },
+    "typescript": {
+      "command": ["{env:HOME}/.config/opencode/bin/typescript-lsp", "--stdio"],
+      "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts"],
+      "initialization": {
+        "preferences": {
+          "importModuleSpecifierPreference": "non-relative",
+          "includeCompletionsForModuleExports": true,
+          "includeInlayParameterNameHints": "literals"
+        }
+      }
+    },
+    "json-ls": {
+      "command": ["{env:HOME}/.config/opencode/bin/json-lsp", "--stdio"],
+      "extensions": [".json", ".jsonc", ".code-workspace"],
+      "initialization": {
+        "handledSchemaProtocols": ["file", "https"],
+        "provideFormatter": true
+      }
+    }
+  },
+
+  "command": {
+    "map-repo": {
+      "template": "Build a high-signal architecture map for this repository. Identify entrypoints, runtime boundaries, package or app relationships, build, test and deploy commands, generated-code zones, data boundaries, risky modules, and the safest edit strategy. Use LSP, grep, and Context7 when external docs matter. End with: 1. architecture summary 2. hotspots 3. safe edit strategy 4. durable memory candidates.",
+      "description": "Map a large repository before changing it",
+      "agent": "repo-architect",
+      "model": "nano-gpt/zai-org/glm-5:thinking"
+    },
+    "deep-review": {
+      "template": "Perform a deep code review of $ARGUMENTS. Findings first, ordered by severity. Focus on regressions, edge cases, missing tests, performance traps, migration risks, and security issues. Use LSP diagnostics and precise file references.",
+      "description": "Deep review with large-project rigor",
+      "agent": "review-analyst",
+      "model": "nano-gpt/deepseek/deepseek-v3.2-speciale"
+    },
+    "memory-bootstrap": {
+      "template": "Explore the repository systematically and build durable project memory. Capture architecture, commands, conventions, recurring pitfalls, deployment requirements, generated outputs, and ownership cues. Save only stable facts. If Supermemory is configured, persist the results there.",
+      "description": "Initialize durable project memory",
+      "agent": "repo-architect",
+      "model": "nano-gpt/moonshotai/kimi-k2.5:thinking"
+    },
+    "compact-handoff": {
+      "template": "Prepare a compact handoff for a long-running task. Preserve decisions, open risks, modified files, rejected approaches, validation status, and the exact next best action. Keep it durable and low-noise so it survives compaction cleanly.",
+      "description": "Create a durable handoff before compaction",
+      "agent": "build"
+    }
+  },
+
+  "agent": {
+    "build": {
+      "model": "nano-gpt/zai-org/glm-5:thinking",
+      "steps": 18,
+      "color": "accent"
+    },
+    "plan": {
+      "model": "nano-gpt/deepseek/deepseek-v3.2:thinking",
+      "steps": 12,
+      "color": "info"
+    },
+    "explore": {
+      "model": "nano-gpt/google/gemini-3-flash-preview",
+      "steps": 10,
+      "color": "secondary"
+    },
+    "summary": {
+      "model": "nano-gpt/deepseek/deepseek-v3.2",
+      "steps": 6
+    },
+    "title": {
+      "model": "nano-gpt/google/gemini-3-flash-preview",
+      "steps": 2
+    }
+  }
+}

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOCAL_BIN="$ROOT_DIR/node_modules/.bin/vscode-json-language-server"
+
+if [[ -x "$LOCAL_BIN" ]]; then
+  exec "$LOCAL_BIN" "$@"
+fi
+
+if command -v vscode-json-language-server >/dev/null 2>&1; then
+  exec vscode-json-language-server "$@"
+fi
+
+echo "vscode-json-language-server is not installed. Run $ROOT_DIR/install.sh" >&2
+exit 1
