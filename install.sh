@@ -106,6 +106,19 @@ configure_nanogpt() {
   write_secret_file "$LOCAL_DIR/nanogpt-base-url" "$base_url"
 }
 
+seed_local_vpn_provider() {
+  local vpn_key_file="$LOCAL_DIR/local-vpn-api-key"
+  local vpn_url_file="$LOCAL_DIR/local-vpn-base-url"
+
+  if [[ ! -f "$vpn_key_file" ]]; then
+    write_secret_file "$vpn_key_file" "local-vpn-routing-placeholder-key"
+  fi
+
+  if [[ ! -f "$vpn_url_file" ]]; then
+    write_secret_file "$vpn_url_file" "http://localhost:4141/"
+  fi
+}
+
 configure_supermemory() {
   local default_answer="n"
   if [[ -f "$TARGET_DIR/supermemory.jsonc" ]]; then
@@ -161,12 +174,14 @@ main() {
   ensure_node
   install_dependencies
   configure_nanogpt
+  seed_local_vpn_provider
   configure_supermemory
   verify_install
 
   echo
   echo "OpenCode config installed at $TARGET_DIR"
   echo "NanoGPT secrets stored under $LOCAL_DIR"
+  echo "Local VPN gpt-5-mini route seeded under $LOCAL_DIR"
   echo "Run 'opencode' to start, then use /map-repo or /memory-bootstrap in a new project."
 }
 
