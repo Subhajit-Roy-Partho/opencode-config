@@ -125,7 +125,7 @@ Why explicit model definitions exist:
 Purpose:
 
 - expose a local OpenAI-compatible route that is reachable through the machine’s VPN path
-- provide `gpt-5-mini` as a second route independent of NanoGPT
+- mirror the full set of models currently exposed by that route
 
 Implementation details:
 
@@ -142,18 +142,64 @@ Implementation details:
 
 The placeholder key is intentionally non-sensitive and exists because many OpenAI-compatible gateways require an `Authorization` header even when they do not verify a real upstream credential.
 
-The model registered for this provider is:
+The source of truth for this provider is:
 
-- `local-vpn/gpt-5-mini`
+- `http://localhost:4141/v1/models`
 
-Its limits are currently set to:
+The config now mirrors all 42 unique IDs currently returned by that endpoint.
 
-- context: `400000`
-- output: `128000`
+Current mirrored IDs:
 
-These values match the current official OpenAI model page for `gpt-5-mini`.
+- `claude-opus-4.6-fast`
+- `claude-opus-4.6`
+- `claude-sonnet-4.6`
+- `gemini-3.1-pro-preview`
+- `gpt-5.2-codex`
+- `gpt-5.3-codex`
+- `gpt-5.4-mini`
+- `gpt-5.4`
+- `gpt-5-mini`
+- `gpt-4o-mini-2024-07-18`
+- `gpt-4o-2024-11-20`
+- `gpt-4o-2024-08-06`
+- `grok-code-fast-1`
+- `gpt-5.1`
+- `gpt-5.1-codex`
+- `gpt-5.1-codex-mini`
+- `gpt-5.1-codex-max`
+- `text-embedding-3-small`
+- `text-embedding-3-small-inference`
+- `claude-sonnet-4`
+- `claude-sonnet-4.5`
+- `claude-opus-4.5`
+- `claude-haiku-4.5`
+- `gemini-3-pro-preview`
+- `gemini-3-flash-preview`
+- `gemini-2.5-pro`
+- `gpt-4.1-2025-04-14`
+- `oswe-vscode-prime`
+- `oswe-vscode-secondary`
+- `gpt-5.2`
+- `gpt-41-copilot`
+- `gpt-3.5-turbo-0613`
+- `gpt-4`
+- `gpt-4-0613`
+- `gpt-4-0125-preview`
+- `gpt-4o-2024-05-13`
+- `gpt-4-o-preview`
+- `gpt-4.1`
+- `gpt-3.5-turbo`
+- `gpt-4o-mini`
+- `gpt-4o`
+- `text-embedding-ada-002`
 
-If the local route actually points to a different model or a gateway with narrower limits, update this model definition first before changing prompts or agents.
+Important implementation note:
+
+- the route only exposes stable IDs, display names, and owners
+- it does not expose context limits, output limits, or pricing
+- the local-vpn model entries are intentionally lightweight to avoid inventing unsupported metadata
+
+If the endpoint changes, regenerate the local-vpn catalog from the live route instead of hand-editing it from memory.
 
 ## 5. Model selection strategy
 
@@ -621,6 +667,7 @@ This package currently assumes:
 
 - the local VPN route at `http://localhost:4141/` is OpenAI-compatible
 - a placeholder API key is sufficient for the local route
+- the route continues to expose a standard OpenAI-style `/v1/models` payload
 - npm is available on the machine
 - OpenCode 1.3.x-compatible config schema remains in use
 

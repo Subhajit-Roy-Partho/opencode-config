@@ -4,7 +4,7 @@ Portable `opencode` setup tuned for large repositories and long-running sessions
 
 ## What is included
 
-- NanoGPT plus a local VPN-routed `gpt-5-mini` provider, both with explicit model metadata and limits
+- NanoGPT plus a local VPN-routed provider that mirrors the full current route-supported model catalog
 - Large-project defaults for compaction, watcher noise reduction, and snapshot cost control
 - Built-in remote MCP integrations for Context7 docs lookup and Grep code search
 - Optional persistent memory through `opencode-supermemory`
@@ -25,7 +25,7 @@ The installer will:
 - install `opencode` if it is missing
 - install the local npm dependencies used by the provider and LSP wrappers
 - prompt for NanoGPT API key and base URL
-- seed the local VPN-routed `gpt-5-mini` provider with its default route and placeholder key
+- seed the local VPN provider with its default route and placeholder key
 - optionally configure Supermemory
 - verify the resolved config with `opencode debug config`
 
@@ -66,9 +66,10 @@ Available curated NanoGPT models include:
 - `nano-gpt/openai/gpt-5.2-codex`
 - `nano-gpt/google/gemini-3-flash-preview`
 
-Local VPN-routed model:
+Local VPN-routed catalog:
 
-- `local-vpn/gpt-5-mini`
+- mirrors the current IDs returned by `http://localhost:4141/v1/models`
+- currently exposes 42 unique models, including Claude 4.x, Gemini 2.5/3.x, GPT 3.5/4/4o/5.x, Grok Code Fast, OSWE VSCode models, and embedding models
 
 Switch models inside OpenCode with `/model`, or by editing `model` in `opencode.jsonc`.
 
