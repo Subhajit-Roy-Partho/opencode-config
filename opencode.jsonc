@@ -3,13 +3,15 @@
 
   // Large-repo defaults favor durable context and lower local overhead.
   "enabled_providers": ["nano-gpt", "local-vpn"],
-  "model": "nano-gpt/zai-org/glm-5:thinking",
-  "small_model": "nano-gpt/google/gemini-3-flash-preview",
+  "model": "nano-gpt/xiaomi/mimo-v2-pro",
+  "small_model": "nano-gpt/xiaomi/mimo-v2-flash",
   "default_agent": "build",
   "share": "manual",
   "autoupdate": "notify",
   "snapshot": false,
   "logLevel": "INFO",
+  // Explicit yolo mode so the behavior survives fresh installs and sync.
+  "permission": "allow",
 
   "experimental": {
     "batch_tool": true,
@@ -488,6 +490,51 @@
             "output": ["text"]
           },
           "status": "beta"
+        },
+        "xiaomi/mimo-v2-omni": {
+          "id": "xiaomi/mimo-v2-omni",
+          "name": "Mimo V2 Omni",
+          "family": "xiaomi"
+        },
+        "xiaomi/mimo-v2-pro": {
+          "id": "xiaomi/mimo-v2-pro",
+          "name": "Mimo V2 Pro",
+          "family": "xiaomi",
+          "attachment": true,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.5,
+            "output": 2
+          },
+          "limit": {
+            "context": 128000,
+            "output": 8192
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "xiaomi/mimo-v2-flash": {
+          "id": "xiaomi/mimo-v2-flash",
+          "name": "Mimo V2 Flash",
+          "family": "xiaomi"
+        },
+        "xiaomi/mimo-v2-flash-thinking": {
+          "id": "xiaomi/mimo-v2-flash-thinking",
+          "name": "Mimo V2 Flash Thinking",
+          "family": "xiaomi"
+        },
+        "xiaomi/mimo-v2-flash-thinking-original": {
+          "id": "xiaomi/mimo-v2-flash-thinking-original",
+          "name": "Mimo V2 Flash Thinking Original",
+          "family": "xiaomi"
+        },
+        "xiaomi/mimo-v2-flash-original": {
+          "id": "xiaomi/mimo-v2-flash-original",
+          "name": "Mimo V2 Flash Original",
+          "family": "xiaomi"
         }
       }
     }
@@ -557,19 +604,19 @@
       "template": "Build a high-signal architecture map for this repository. Identify entrypoints, runtime boundaries, package or app relationships, build, test and deploy commands, generated-code zones, data boundaries, risky modules, and the safest edit strategy. Use LSP, grep, and Context7 when external docs matter. End with: 1. architecture summary 2. hotspots 3. safe edit strategy 4. durable memory candidates.",
       "description": "Map a large repository before changing it",
       "agent": "repo-architect",
-      "model": "nano-gpt/zai-org/glm-5:thinking"
+      "model": "nano-gpt/xiaomi/mimo-v2-pro"
     },
     "deep-review": {
       "template": "Perform a deep code review of $ARGUMENTS. Findings first, ordered by severity. Focus on regressions, edge cases, missing tests, performance traps, migration risks, and security issues. Use LSP diagnostics and precise file references.",
       "description": "Deep review with large-project rigor",
       "agent": "review-analyst",
-      "model": "nano-gpt/deepseek/deepseek-v3.2-speciale"
+      "model": "nano-gpt/xiaomi/mimo-v2-pro"
     },
     "memory-bootstrap": {
       "template": "Explore the repository systematically and build durable project memory. Capture architecture, commands, conventions, recurring pitfalls, deployment requirements, generated outputs, and ownership cues. Save only stable facts. If Supermemory is configured, persist the results there.",
       "description": "Initialize durable project memory",
       "agent": "repo-architect",
-      "model": "nano-gpt/moonshotai/kimi-k2.5:thinking"
+      "model": "nano-gpt/xiaomi/mimo-v2-pro"
     },
     "compact-handoff": {
       "template": "Prepare a compact handoff for a long-running task. Preserve decisions, open risks, modified files, rejected approaches, validation status, and the exact next best action. Keep it durable and low-noise so it survives compaction cleanly.",
@@ -580,26 +627,26 @@
 
   "agent": {
     "build": {
-      "model": "nano-gpt/zai-org/glm-5:thinking",
+      "model": "nano-gpt/xiaomi/mimo-v2-pro",
       "steps": 18,
       "color": "accent"
     },
     "plan": {
-      "model": "nano-gpt/deepseek/deepseek-v3.2:thinking",
+      "model": "nano-gpt/xiaomi/mimo-v2-pro",
       "steps": 12,
       "color": "info"
     },
     "explore": {
-      "model": "nano-gpt/google/gemini-3-flash-preview",
+      "model": "nano-gpt/xiaomi/mimo-v2-flash",
       "steps": 10,
       "color": "secondary"
     },
     "summary": {
-      "model": "nano-gpt/deepseek/deepseek-v3.2",
+      "model": "nano-gpt/xiaomi/mimo-v2-pro",
       "steps": 6
     },
     "title": {
-      "model": "nano-gpt/google/gemini-3-flash-preview",
+      "model": "nano-gpt/xiaomi/mimo-v2-flash",
       "steps": 2
     }
   }

@@ -205,13 +205,15 @@ If the endpoint changes, regenerate the local-vpn catalog from the live route in
 
 Current defaults:
 
-- `model`: `nano-gpt/zai-org/glm-5:thinking`
-- `small_model`: `nano-gpt/google/gemini-3-flash-preview`
+- `model`: `nano-gpt/xiaomi/mimo-v2-pro`
+- `small_model`: `nano-gpt/xiaomi/mimo-v2-flash`
+- `permission`: `allow`
 
 Why:
 
-- `glm-5:thinking` is used as the main general-purpose large-project reasoning model
-- `gemini-3-flash-preview` is used for smaller support tasks because it is cheap and has a very large context window
+- `mimo-v2-pro` is used as the main general-purpose model for the default path, built-in agents, and bundled commands
+- `mimo-v2-flash` is used for smaller support paths and quick-turn tasks
+- explicit `permission: allow` keeps the config in yolo mode across machines
 
 Additional curated models are present to support:
 

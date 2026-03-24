@@ -50,21 +50,18 @@ Change those local files if your VPN route or local proxy changes.
 
 Default models:
 
-- Main model: `nano-gpt/zai-org/glm-5:thinking`
-- Small model: `nano-gpt/google/gemini-3-flash-preview`
+- Main model: `nano-gpt/xiaomi/mimo-v2-pro`
+- Small model: `nano-gpt/xiaomi/mimo-v2-flash`
+- Permission mode: explicit yolo via `permission: "allow"`
 
 Available curated NanoGPT models include:
 
-- `nano-gpt/zai-org/glm-5`
-- `nano-gpt/zai-org/glm-5:thinking`
-- `nano-gpt/moonshotai/kimi-k2.5`
-- `nano-gpt/moonshotai/kimi-k2.5:thinking`
-- `nano-gpt/deepseek/deepseek-v3.2-speciale`
-- `nano-gpt/deepseek/deepseek-v3.2`
-- `nano-gpt/deepseek/deepseek-v3.2:thinking`
-- `nano-gpt/openai/gpt-5.2`
-- `nano-gpt/openai/gpt-5.2-codex`
-- `nano-gpt/google/gemini-3-flash-preview`
+- `nano-gpt/xiaomi/mimo-v2-omni`
+- `nano-gpt/xiaomi/mimo-v2-pro`
+- `nano-gpt/xiaomi/mimo-v2-flash`
+- `nano-gpt/xiaomi/mimo-v2-flash-thinking`
+- `nano-gpt/xiaomi/mimo-v2-flash-thinking-original`
+- `nano-gpt/xiaomi/mimo-v2-flash-original`
 
 Local VPN-routed catalog:
 
