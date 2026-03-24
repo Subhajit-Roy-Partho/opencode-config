@@ -2,7 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
 
   // Large-repo defaults favor durable context and lower local overhead.
-  "enabled_providers": ["nano-gpt", "local-vpn"],
+  "enabled_providers": ["nano-gpt", "local-vpn", "opencode"],
   "model": "nano-gpt/xiaomi/mimo-v2-pro",
   "small_model": "nano-gpt/xiaomi/mimo-v2-flash",
   "default_agent": "build",

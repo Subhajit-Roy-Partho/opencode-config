@@ -208,12 +208,14 @@ Current defaults:
 - `model`: `nano-gpt/xiaomi/mimo-v2-pro`
 - `small_model`: `nano-gpt/xiaomi/mimo-v2-flash`
 - `permission`: `allow`
+- `enabled_providers`: `nano-gpt`, `local-vpn`, `opencode`
 
 Why:
 
 - `mimo-v2-pro` is used as the main general-purpose model for the default path, built-in agents, and bundled commands
 - `mimo-v2-flash` is used for smaller support paths and quick-turn tasks
 - explicit `permission: allow` keeps the config in yolo mode across machines
+- `opencode` is kept enabled so OpenCode Zen remains available through `/connect` or `opencode providers login`
 
 Additional curated models are present to support:
 

@@ -4,7 +4,7 @@ Portable `opencode` setup tuned for large repositories and long-running sessions
 
 ## What is included
 
-- NanoGPT plus a local VPN-routed provider that mirrors the full current route-supported model catalog
+- NanoGPT plus a local VPN-routed provider, with OpenCode Zen re-enabled as a built-in provider option
 - Large-project defaults for compaction, watcher noise reduction, and snapshot cost control
 - Built-in remote MCP integrations for Context7 docs lookup and Grep code search
 - Optional persistent memory through `opencode-supermemory`
@@ -53,6 +53,7 @@ Default models:
 - Main model: `nano-gpt/xiaomi/mimo-v2-pro`
 - Small model: `nano-gpt/xiaomi/mimo-v2-flash`
 - Permission mode: explicit yolo via `permission: "allow"`
+- Enabled providers: `nano-gpt`, `local-vpn`, `opencode`
 
 Available curated NanoGPT models include:
 
@@ -69,6 +70,7 @@ Local VPN-routed catalog:
 - currently exposes 42 unique models, including Claude 4.x, Gemini 2.5/3.x, GPT 3.5/4/4o/5.x, Grok Code Fast, OSWE VSCode models, and embedding models
 
 Switch models inside OpenCode with `/model`, or by editing `model` in `opencode.jsonc`.
+If you want to use OpenCode Zen, run `/connect` in the TUI or `opencode providers login`, then select OpenCode Zen.
 
 ## Key files
 
