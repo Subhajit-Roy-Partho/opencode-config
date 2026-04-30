@@ -3,7 +3,7 @@
 
   // Large-repo defaults favor durable context and lower local overhead.
   "enabled_providers": ["nano-gpt", "local-vpn", "opencode"],
-  "model": "nano-gpt/xiaomi/mimo-v2-pro",
+  "model": "nano-gpt/zai-org/glm-5.1:thinking",
   "small_model": "nano-gpt/xiaomi/mimo-v2-flash",
   "default_agent": "build",
   "share": "manual",
@@ -21,7 +21,7 @@
   "compaction": {
     "auto": true,
     "prune": true,
-    "reserved": 24000
+    "reserved": 40000
   },
 
   "watcher": {
@@ -293,6 +293,26 @@
         "zai-org/glm-5": {
           "id": "zai-org/glm-5",
           "name": "GLM 5",
+          "family": "zhipu",
+          "attachment": false,
+          "reasoning": true,
+          "tool_call": true,
+          "cost": {
+            "input": 0.3,
+            "output": 2.55
+          },
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "zai-org/glm-5.1:thinking": {
+          "id": "zai-org/glm-5.1:thinking",
+          "name": "GLM 5.1 Thinking",
           "family": "zhipu",
           "attachment": false,
           "reasoning": true,
@@ -627,27 +647,22 @@
 
   "agent": {
     "build": {
-      "model": "nano-gpt/xiaomi/mimo-v2-pro",
-      "steps": 18,
+      "model": "nano-gpt/zai-org/glm-5.1:thinking",
       "color": "accent"
     },
     "plan": {
-      "model": "nano-gpt/xiaomi/mimo-v2-pro",
-      "steps": 12,
+      "model": "nano-gpt/zai-org/glm-5.1:thinking",
       "color": "info"
     },
     "explore": {
       "model": "nano-gpt/xiaomi/mimo-v2-flash",
-      "steps": 10,
       "color": "secondary"
     },
     "summary": {
-      "model": "nano-gpt/xiaomi/mimo-v2-pro",
-      "steps": 6
+      "model": "nano-gpt/zai-org/glm-5.1:thinking"
     },
     "title": {
-      "model": "nano-gpt/xiaomi/mimo-v2-flash",
-      "steps": 2
+      "model": "nano-gpt/xiaomi/mimo-v2-flash"
     }
   }
 }
