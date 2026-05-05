@@ -1,0 +1,86 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": true,
+  "permission": "allow",
+  "share": "manual",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+  "plugin": [
+    "opencode-supermemory",
+    "opencode-notificator",
+    "opencode-type-inject",
+    "opencode-md-table-formatter",
+    "opencode-dynamic-context-pruning",
+    "opencode-shell-strategy"
+  ],
+  "agent": {
+    "code-reviewer": {
+      "description": "Reviews code for best practices, security, performance, and maintainability",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a senior code reviewer. Focus on security vulnerabilities, performance bottlenecks, maintainability, and adherence to best practices. Provide actionable feedback with specific line references. Rate severity of each issue as critical, warning, or suggestion.",
+      "tools": {
+        "write": false,
+        "edit": false
+      }
+    },
+    "architect": {
+      "description": "Designs system architecture and creates implementation plans",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a software architect. Analyze requirements, design system architecture, define data models, API contracts, and create step-by-step implementation plans. Always consider scalability, maintainability, and trade-offs. Output structured plans with clear phases.",
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false
+      }
+    },
+    "test-writer": {
+      "description": "Writes comprehensive tests for existing and new code",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a test engineer. Write comprehensive tests covering happy paths, edge cases, error handling, and boundary conditions. Follow the project's existing test patterns and conventions. Aim for high coverage but prioritize meaningful assertions over line coverage."
+    },
+    "debugger": {
+      "description": "Debugs issues by analyzing code, logs, and error traces",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a debugging specialist. Systematically trace issues from error messages through the call stack. Identify root causes, not symptoms. Suggest minimal fixes and explain why the bug occurred. Verify your hypothesis before suggesting fixes."
+    }
+  },
+  "command": {
+    "review": {
+      "template": "Review the current changes (staged and unstaged) for bugs, security issues, performance problems, and code quality. Use the code-reviewer agent approach. List findings by severity.",
+      "description": "Review code changes for issues"
+    },
+    "test": {
+      "template": "Run the full test suite and analyze any failures. Focus on the failing tests, identify root causes, and suggest fixes.",
+      "description": "Run tests and fix failures"
+    },
+    "plan": {
+      "template": "Analyze the following request and create a detailed step-by-step implementation plan: $ARGUMENTS\n\nBreak it into phases with clear deliverables for each phase. Consider dependencies between phases.",
+      "description": "Create an implementation plan",
+      "agent": "plan"
+    },
+    "refactor": {
+      "template": "Analyze the codebase for refactoring opportunities in the files related to: $ARGUMENTS\n\nLook for duplicated code, long functions, tight coupling, and violations of SOLID principles. Suggest and implement improvements.",
+      "description": "Refactor code for quality"
+    },
+    "debug": {
+      "template": "Debug the following issue: $ARGUMENTS\n\nTrace through the code, identify the root cause, and implement a fix.",
+      "description": "Debug an issue",
+      "agent": "debugger"
+    },
+    "document": {
+      "template": "Generate comprehensive documentation for: $ARGUMENTS\n\nInclude JSDoc/doc comments, README sections, and usage examples. Follow the project's existing documentation style.",
+      "description": "Generate documentation"
+    },
+    "security": {
+      "template": "Perform a security audit on: $ARGUMENTS\n\nCheck for SQL injection, XSS, CSRF, authentication issues, sensitive data exposure, insecure dependencies, and other OWASP Top 10 vulnerabilities.",
+      "description": "Security audit"
+    },
+    "perf": {
+      "template": "Analyze performance of: $ARGUMENTS\n\nProfile for bottlenecks, memory leaks, unnecessary re-renders, N+1 queries, and inefficient algorithms. Suggest and implement optimizations.",
+      "description": "Performance optimization"
+    }
+  }
+}
