@@ -1,15 +1,17 @@
 export const NotificationPlugin = async ({ $ }) => {
+  const notify = async (title, message) => {
+    try {
+      await $`osascript -e 'display notification "${message}" with title "${title}"'`
+    } catch {}
+  }
+
   return {
     event: async ({ event }) => {
       if (event.type === "session.idle") {
-        try {
-          await $`notify-send "opencode" "Session completed!" --icon=dialog-information`
-        } catch {}
+        await notify("opencode", "Session completed!")
       }
       if (event.type === "session.error") {
-        try {
-          await $`notify-send "opencode" "Session encountered an error" --icon=dialog-error`
-        } catch {}
+        await notify("opencode", "Session encountered an error")
       }
     },
   }
