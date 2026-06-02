@@ -1,13 +1,14 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
+  // kimi-k2.6 supports image/video attachments natively via opencode-go
+  "model": "opencode-go/kimi-k2.6",
   "permission": "allow",
   "share": "manual",
   "compaction": {
     "auto": true,
     "prune": true,
-    "reserved": 10000,
-    "preserve_recent_tokens": 4000
+    "reserved": 10000
   },
   "lsp": {
     "pyright": {
@@ -26,6 +27,8 @@
     "opencode-md-table-formatter",
     "opencode-dynamic-context-pruning",
     "opencode-shell-strategy",
+    // reduces shell output token usage by 60-90% by filtering before it hits the LLM
+    "opencode-snip",
     "./plugins/env-protection.js",
     "./plugins/memory-compaction.js",
     "./plugins/notification.js",
@@ -59,6 +62,11 @@
       "description": "Debugs issues by analyzing code, logs, and error traces",
       "model": "{env:OPENCODE_MODEL}",
       "prompt": "You are a debugging specialist. Systematically trace issues from error messages through the call stack. Identify root causes, not symptoms. Suggest minimal fixes and explain why the bug occurred. Verify your hypothesis before suggesting fixes."
+    },
+    "vision": {
+      "description": "Analyzes images, screenshots, diagrams, and visual content using Kimi K2.6 vision",
+      "model": "opencode-go/kimi-k2.6",
+      "prompt": "You are a visual analysis expert. Analyze images, screenshots, diagrams, UI mockups, and other visual content in detail. Identify code, UI patterns, errors, architecture diagrams, or data in the image. Connect visual observations to the codebase and provide actionable insights or code changes."
     }
   },
   "command": {
@@ -95,6 +103,11 @@
     "perf": {
       "template": "Analyze performance of: $ARGUMENTS\n\nProfile for bottlenecks, memory leaks, unnecessary re-renders, N+1 queries, and inefficient algorithms. Suggest and implement optimizations.",
       "description": "Performance optimization"
+    },
+    "vision": {
+      "template": "Analyze the attached image(s) and: $ARGUMENTS",
+      "description": "Analyze images or screenshots with Kimi K2.6 vision",
+      "agent": "vision"
     }
   }
 }
