@@ -2,7 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
   // kimi-k2.6 supports image/video attachments natively via opencode-go
-  "model": "opencode-go/kimi-k2.6",
+  "model": "nano-gpt/zai-org/glm-5.2",
   "permission": "allow",
   "share": "manual",
   "compaction": {
@@ -67,6 +67,105 @@
       "description": "Analyzes images, screenshots, diagrams, and visual content using Kimi K2.6 vision",
       "model": "opencode-go/kimi-k2.6",
       "prompt": "You are a visual analysis expert. Analyze images, screenshots, diagrams, UI mockups, and other visual content in detail. Identify code, UI patterns, errors, architecture diagrams, or data in the image. Connect visual observations to the codebase and provide actionable insights or code changes."
+    }
+  },
+  "provider": {
+    "nano-gpt": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "NanoGPT",
+      "options": {
+        "baseURL": "https://nano-gpt.com/api/v1"
+      },
+      "models": {
+        "claude-opus-4-5-20251101": {
+          "name": "Claude 4.5 Opus",
+          "limit": { "context": 200000, "output": 32000 }
+        },
+        "claude-sonnet-4-5-20250929": {
+          "name": "Claude Sonnet 4.5",
+          "limit": { "context": 1000000, "output": 64000 }
+        },
+        "openai/gpt-5.2": {
+          "name": "GPT 5.2",
+          "limit": { "context": 128000, "output": 128000 }
+        },
+        "deepseek/deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "deepseek/deepseek-v4-pro:thinking": {
+          "name": "DeepSeek V4 Pro Thinking",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "deepseek/deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "deepseek/deepseek-v4-flash:thinking": {
+          "name": "DeepSeek V4 Flash Thinking",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "google/gemini-3-flash-preview": {
+          "name": "Gemini 3 Flash (Preview)",
+          "limit": { "context": 1048756, "output": 65536 }
+        },
+        "gemini-3-pro-preview": {
+          "name": "Gemini 3 Pro",
+          "limit": { "context": 1048756, "output": 65536 }
+        },
+        "zai-org/glm-4.7": {
+          "name": "GLM 4.7",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-4.7:thinking": {
+          "name": "GLM 4.7 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5": {
+          "name": "GLM 5",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5:thinking": {
+          "name": "GLM 5 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.1": {
+          "name": "GLM 5.1",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.1:thinking": {
+          "name": "GLM 5.1 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.2": {
+          "name": "GLM 5.2",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.2:thinking": {
+          "name": "GLM 5.2 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "TEE/glm-5.2": {
+          "name": "GLM 5.2 (TEE)",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "TEE/kimi-k2.6": {
+          "name": "Kimi K2.6",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "moonshotai/kimi-k2.6": {
+          "name": "Kimi K2.6 (Moonshot)",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "moonshotai/kimi-k2.6:thinking": {
+          "name": "Kimi K2.6 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "moonshotai/kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code",
+          "limit": { "context": 200000, "output": 65535 }
+        }
+      }
     }
   },
   "command": {
