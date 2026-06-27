@@ -22,11 +22,12 @@
   },
   "plugin": [
     "opencode-supermemory",
-    "opencode-notificator",
-    "opencode-type-inject",
-    "opencode-md-table-formatter",
-    "opencode-dynamic-context-pruning",
-    "opencode-shell-strategy",
+    "oh-my-opencode-slim",
+    "opencode-pty",
+    "opencode-copilot-plugin",
+    "opencode-notify",
+    "opencode-mem",
+    "envsitter-guard",
     // reduces shell output token usage by 60-90% by filtering before it hits the LLM
     "opencode-snip",
     "./plugins/env-protection.js",
@@ -166,6 +167,13 @@
           "limit": { "context": 200000, "output": 65535 }
         }
       }
+    }
+  },
+  "mcp": {
+    "composio": {
+      "type": "remote",
+      "url": "https://connect.composio.dev/mcp",
+      "enabled": true
     }
   },
   "command": {
