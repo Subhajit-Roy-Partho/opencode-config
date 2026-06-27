@@ -27,7 +27,6 @@
     "opencode-copilot-plugin",
     "opencode-notify",
     "opencode-mem",
-    "envsitter-guard",
     // reduces shell output token usage by 60-90% by filtering before it hits the LLM
     "opencode-snip",
     "./plugins/env-protection.js",
