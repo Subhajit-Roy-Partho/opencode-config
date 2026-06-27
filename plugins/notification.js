@@ -1,7 +1,12 @@
 export const NotificationPlugin = async ({ $ }) => {
+  const isMac = process.platform === "darwin"
   const notify = async (title, message) => {
     try {
-      await $`osascript -e 'display notification "${message}" with title "${title}"'`
+      if (isMac) {
+        await $`osascript -e 'display notification "${message}" with title "${title}"'`
+      } else {
+        await $`notify-send "${title}" "${message}"`
+      }
     } catch {}
   }
 

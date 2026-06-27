@@ -1,8 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
-  // kimi-k2.6 supports image/video attachments natively via opencode-go
-  "model": "nano-gpt/zai-org/glm-5.2",
+  // Big Pickle is a free stealth model on opencode Zen (https://opencode.ai/zen)
+  "model": "opencode/big-pickle",
   "permission": "allow",
   "share": "manual",
   "compaction": {
