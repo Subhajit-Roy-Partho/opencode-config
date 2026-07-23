@@ -1,0 +1,254 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": true,
+  // Big Pickle is a free stealth model on opencode Zen (https://opencode.ai/zen)
+  "model": "opencode/big-pickle",
+  "permission": "allow",
+  "share": "manual",
+  // ACP (Active Context Pruning) handles context management — disable built-in compaction
+  "compaction": {
+    "auto": false,
+    "prune": true,
+    "reserved": 10000
+  },
+  // LSPs: built-ins auto-load per-file-type, only spin up when you open a matching file
+  "lsp": {
+    // ── disable all built-ins you don't use ──
+    "zls":              { "disabled": true },
+    "yaml-ls":          { "disabled": true },
+    "vue":              { "disabled": true },
+    "tinymist":         { "disabled": true },
+    "texlab":           { "disabled": true },
+    "terraform":        { "disabled": true },
+    "svelte":           { "disabled": true },
+    "sourcekit-lsp":    { "disabled": true },
+    "rust":             { "disabled": true },
+    "ruby-lsp":         { "disabled": true },
+    "razor":            { "disabled": true },
+    "prisma":           { "disabled": true },
+    "php intelephense": { "disabled": true },
+    "oxlint":           { "disabled": true },
+    "ocaml-lsp":        { "disabled": true },
+    "nixd":             { "disabled": true },
+    "lua-ls":           { "disabled": true },
+    "kotlin-ls":        { "disabled": true },
+    "julials":          { "disabled": true },
+    "jdtls":            { "disabled": true },
+    "haskell-language-server": { "disabled": true },
+    "gopls":            { "disabled": true },
+    "gleam":            { "disabled": true },
+    "fsharp":           { "disabled": true },
+    "elixir-ls":        { "disabled": true },
+    "dockerfile":       { "disabled": true },
+    "deno":             { "disabled": true },
+    "dart":             { "disabled": true },
+    "clojure-lsp":      { "disabled": true },
+    "csharp":           { "disabled": true },
+    "biome":            { "disabled": true },
+    "astro":            { "disabled": true },
+    // ── keep: pyright (Python), clangd (C/C++), bash, typescript, eslint, html/css/json ──
+  },
+  "plugin": [
+    "./plugins/onnx-fix.js",
+    // Memory & context management
+    "opencode-supermemory",
+    "opencode-mem",
+    "opencode-working-memory",
+    "opencode-acp",
+    // Agent orchestration & functionality
+    "oh-my-opencode-slim",
+    "opencode-forgecode",
+    // Utilities
+    "opencode-pty",
+    "opencode-copilot-plugin",
+    "opencode-notify",
+    "opencode-snip",
+    // Local plugins
+    "./plugins/env-protection.js",
+    "./plugins/memory-compaction.js",
+    "./plugins/notification.js",
+    "./plugins/shell-strategy.js",
+    "./plugins/todo-tracker.js"
+  ],
+  "agent": {
+    "code-reviewer": {
+      "description": "Reviews code for best practices, security, performance, and maintainability",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a senior code reviewer. Focus on security vulnerabilities, performance bottlenecks, maintainability, and adherence to best practices. Provide actionable feedback with specific line references. Rate severity of each issue as critical, warning, or suggestion.",
+      "permission": {
+        "edit": "deny"
+      }
+    },
+    "architect": {
+      "description": "Designs system architecture and creates implementation plans",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a software architect. Analyze requirements, design system architecture, define data models, API contracts, and create step-by-step implementation plans. Always consider scalability, maintainability, and trade-offs. Output structured plans with clear phases.",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny"
+      }
+    },
+    "test-writer": {
+      "description": "Writes comprehensive tests for existing and new code",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a test engineer. Write comprehensive tests covering happy paths, edge cases, error handling, and boundary conditions. Follow the project's existing test patterns and conventions. Aim for high coverage but prioritize meaningful assertions over line coverage."
+    },
+    "debugger": {
+      "description": "Debugs issues by analyzing code, logs, and error traces",
+      "model": "{env:OPENCODE_MODEL}",
+      "prompt": "You are a debugging specialist. Systematically trace issues from error messages through the call stack. Identify root causes, not symptoms. Suggest minimal fixes and explain why the bug occurred. Verify your hypothesis before suggesting fixes."
+    },
+    "vision": {
+      "description": "Analyzes images, screenshots, diagrams, and visual content using Kimi K2.6 vision",
+      "model": "opencode-go/kimi-k2.6",
+      "prompt": "You are a visual analysis expert. Analyze images, screenshots, diagrams, UI mockups, and other visual content in detail. Identify code, UI patterns, errors, architecture diagrams, or data in the image. Connect visual observations to the codebase and provide actionable insights or code changes."
+    }
+  },
+  "provider": {
+    "nano-gpt": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "NanoGPT",
+      "options": {
+        "baseURL": "https://nano-gpt.com/api/v1"
+      },
+      "models": {
+        "claude-opus-4-5-20251101": {
+          "name": "Claude 4.5 Opus",
+          "limit": { "context": 200000, "output": 32000 }
+        },
+        "claude-sonnet-4-5-20250929": {
+          "name": "Claude Sonnet 4.5",
+          "limit": { "context": 1000000, "output": 64000 }
+        },
+        "openai/gpt-5.2": {
+          "name": "GPT 5.2",
+          "limit": { "context": 128000, "output": 128000 }
+        },
+        "deepseek/deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "deepseek/deepseek-v4-pro:thinking": {
+          "name": "DeepSeek V4 Pro Thinking",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "deepseek/deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "deepseek/deepseek-v4-flash:thinking": {
+          "name": "DeepSeek V4 Flash Thinking",
+          "limit": { "context": 1048576, "output": 384000 }
+        },
+        "google/gemini-3-flash-preview": {
+          "name": "Gemini 3 Flash (Preview)",
+          "limit": { "context": 1048756, "output": 65536 }
+        },
+        "gemini-3-pro-preview": {
+          "name": "Gemini 3 Pro",
+          "limit": { "context": 1048756, "output": 65536 }
+        },
+        "zai-org/glm-4.7": {
+          "name": "GLM 4.7",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-4.7:thinking": {
+          "name": "GLM 4.7 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5": {
+          "name": "GLM 5",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5:thinking": {
+          "name": "GLM 5 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.1": {
+          "name": "GLM 5.1",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.1:thinking": {
+          "name": "GLM 5.1 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.2": {
+          "name": "GLM 5.2",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "zai-org/glm-5.2:thinking": {
+          "name": "GLM 5.2 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "TEE/glm-5.2": {
+          "name": "GLM 5.2 (TEE)",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "TEE/kimi-k2.6": {
+          "name": "Kimi K2.6",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "moonshotai/kimi-k2.6": {
+          "name": "Kimi K2.6 (Moonshot)",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "moonshotai/kimi-k2.6:thinking": {
+          "name": "Kimi K2.6 Thinking",
+          "limit": { "context": 200000, "output": 65535 }
+        },
+        "moonshotai/kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code",
+          "limit": { "context": 200000, "output": 65535 }
+        }
+      }
+    }
+  },
+  "mcp": {
+    "composio": {
+      "type": "remote",
+      "url": "https://connect.composio.dev/mcp",
+      "enabled": false
+    }
+  },
+  "command": {
+    "review": {
+      "template": "Review the current changes (staged and unstaged) for bugs, security issues, performance problems, and code quality. Use the code-reviewer agent approach. List findings by severity.",
+      "description": "Review code changes for issues"
+    },
+    "test": {
+      "template": "Run the full test suite and analyze any failures. Focus on the failing tests, identify root causes, and suggest fixes.",
+      "description": "Run tests and fix failures"
+    },
+    "plan": {
+      "template": "Analyze the following request and create a detailed step-by-step implementation plan: $ARGUMENTS\n\nBreak it into phases with clear deliverables for each phase. Consider dependencies between phases.",
+      "description": "Create an implementation plan",
+      "agent": "plan"
+    },
+    "refactor": {
+      "template": "Analyze the codebase for refactoring opportunities in the files related to: $ARGUMENTS\n\nLook for duplicated code, long functions, tight coupling, and violations of SOLID principles. Suggest and implement improvements.",
+      "description": "Refactor code for quality"
+    },
+    "debug": {
+      "template": "Debug the following issue: $ARGUMENTS\n\nTrace through the code, identify the root cause, and implement a fix.",
+      "description": "Debug an issue",
+      "agent": "debugger"
+    },
+    "document": {
+      "template": "Generate comprehensive documentation for: $ARGUMENTS\n\nInclude JSDoc/doc comments, README sections, and usage examples. Follow the project's existing documentation style.",
+      "description": "Generate documentation"
+    },
+    "security": {
+      "template": "Perform a security audit on: $ARGUMENTS\n\nCheck for SQL injection, XSS, CSRF, authentication issues, sensitive data exposure, insecure dependencies, and other OWASP Top 10 vulnerabilities.",
+      "description": "Security audit"
+    },
+    "perf": {
+      "template": "Analyze performance of: $ARGUMENTS\n\nProfile for bottlenecks, memory leaks, unnecessary re-renders, N+1 queries, and inefficient algorithms. Suggest and implement optimizations.",
+      "description": "Performance optimization"
+    },
+    "vision": {
+      "template": "Analyze the attached image(s) and: $ARGUMENTS",
+      "description": "Analyze images or screenshots with Kimi K2.6 vision",
+      "agent": "vision"
+    }
+  }
+}
