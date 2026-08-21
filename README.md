@@ -11,8 +11,11 @@ Portable `opencode` setup tuned for large repositories and long-running sessions
 - Explicit LSP wiring for C/C++, Python, JavaScript, TypeScript, and JSON/JSONC
 - Custom large-project instructions, commands, agents, and a custom TUI theme
 - A detailed engineering guide in `INFO.md` for future modifications
+- Rootless `gh` (GitHub CLI) bootstrap baked into the installer
 
 ## Install on a new machine
+
+Prerequisites: `curl`, `git`, `rsync`, `node >= 20` + `npm` (recommended via `nvm`).
 
 ```bash
 git clone git@github.com:Subhajit-Roy-Partho/opencode-config.git ~/.config/opencode
@@ -20,14 +23,64 @@ cd ~/.config/opencode
 ./install.sh
 ```
 
+Non-interactive / automation-friendly:
+
+```bash
+# All prompts skipped; placeholder NanoGPT key seeded (replace later) if NANOGPT_API_KEY not set
+./install.sh --non-interactive
+
+# Or fully seeded via env vars
+NANOGPT_API_KEY='sk-...' NANOGPT_BASE_URL='https://nano-gpt.com/api/v1' ./install.sh --non-interactive
+
+# With Supermemory
+SUPERMEMORY_API_KEY='sm-...' ./install.sh --non-interactive
+# or combine:   NANOGPT_API_KEY='sk-...' SUPERMEMORY_API_KEY='sm-...' ./install.sh --yes
+```
+
+One-liner (curl + env):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Subhajit-Roy-Partho/opencode-config/modern/install.sh | bash -s -- --non-interactive
+# then drop in the real key:
+echo 'sk-...' > ~/.config/opencode/local/nanogpt-api-key && chmod 600 ~/.config/opencode/local/nanogpt-api-key
+```
+
 The installer will:
 
-- install `opencode` if it is missing
-- install the local npm dependencies used by the provider and LSP wrappers
-- prompt for NanoGPT API key and base URL
+- install `gh` (GitHub CLI) without root to `~/.local/bin/gh` if missing
+- install `opencode` if missing (`https://opencode.ai/install`)
+- validate `node >= 20` (with NVM auto-switch and actionable fix hints)
+- install local npm dependencies (`@ai-sdk/openai-compatible`, LSP servers, etc.)
+- prompt for NanoGPT API key and base URL (or use `NANOGPT_API_KEY` / `NANOGPT_BASE_URL` / `--non-interactive` placeholder)
 - seed the local VPN provider with its default route and placeholder key
-- optionally configure Supermemory
-- verify the resolved config with `opencode debug config`
+- optionally configure Supermemory (or use `SUPERMEMORY_API_KEY` / skip in non-interactive)
+- verify with `opencode debug config` + `opencode debug startup` timing check (< 3 s expected)
+
+If `opencode` does not open quickly, run `opencode debug startup` and `opencode debug config` — common causes
+are a bloated plugin list, missing `local/*` file refs, or an old `node` on `PATH` (see Common pitfalls).
+
+Reinstall / update on the same host:
+
+```bash
+cd ~/.config/opencode
+git pull --ff-only
+./install.sh            # reuses existing local secrets by default
+```
+
+## GitHub CLI (gh) — installed without root
+
+`install.sh` installs `gh` automatically (no `sudo`), fetches the latest Linux `amd64` tarball from
+`cli/cli` releases, extracts `gh` to `~/.local/bin/gh`, and registers its man page. `~/.local/bin`
+is already on `PATH` via `~/.bash_profile` on this host; verify with `which gh && gh --version`.
+
+Authenticate after install:
+
+```bash
+gh auth login            # interactive (SSH or HTTPS)
+# or headless/CI:
+echo "$GH_TOKEN" | gh auth login --with-token
+gh auth status
+```
 
 ## Local secrets
 
@@ -38,6 +91,7 @@ Secrets are intentionally kept out of git.
 - Local VPN route URL: `~/.config/opencode/local/local-vpn-base-url`
 - Local VPN placeholder key: `~/.config/opencode/local/local-vpn-api-key`
 - Optional Supermemory config: `~/.config/opencode/supermemory.jsonc`
+- `gh` auth: `~/.config/gh/hosts.yml` (managed by `gh auth login`) or `GH_TOKEN`
 
 The installer currently seeds the local VPN provider with:
 
@@ -80,8 +134,22 @@ If you want to use OpenCode Zen, run `/connect` in the TUI or `opencode provider
 - `instructions/*.md`: always-loaded operating rules
 - `agents/*.md`: reusable specialized subagents
 - `bin/*`: local wrappers that make LSP resolution predictable across machines
-- `install.sh`: portable installer and local secret bootstrap
+- `install.sh`: portable installer and local secret bootstrap (now also bootstraps `gh` rootless)
 - `INFO.md`: engineering guide for extending or reworking this package
+
+## Common pitfalls
+
+- `Error: Configuration is invalid ... bad file reference ... local/* does not exist` — `install.sh` creates these; if you copied the repo manually, run `./install.sh` or `mkdir -p local && echo '...' > local/nanogpt-api-key` etc.
+- `node --version` shows `10.x` (conda shadowing nvm) despite having `nvm` — put NVM init **after** conda in `~/.bashrc`:
+  ```bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  export PATH="$NVM_DIR/versions/node/v24.13.1/bin:$PATH"
+  ```
+  Then `source ~/.bashrc; nvm install 24`.
+- Slow `opencode` startup — check `opencode debug startup`; keep `watcher.ignore` broad and `snapshot: false` for large repos; heavy plugins increase startup.
+- `gh: command not found` after install — `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc`.
+- NanoGPT auth errors after install — non-interactive mode seeds a placeholder key; replace `~/.config/opencode/local/nanogpt-api-key` with a real key.
 
 ## Recommended first steps
 
