@@ -53,11 +53,11 @@
 		"image": "oc-forge-sandbox:latest",
 	},
 
-	// Graph indexing configuration
+	// Graph indexing configuration — disabled autoScan/watch on HPC home to avoid rg scan hang
 	"graph": {
 		"enabled": true,
-		"autoScan": true,
-		"watch": true,
+		"autoScan": false,
+		"watch": false,
 		"debounceMs": 100,
 	},
 
