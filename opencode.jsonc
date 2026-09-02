@@ -1,10 +1,35 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "autoupdate": true,
+  "autoupdate": "notify",
   // Big Pickle is a free stealth model on opencode Zen (https://opencode.ai/zen)
   "model": "opencode/big-pickle",
   "permission": "allow",
   "share": "manual",
+  "snapshot": false,
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      ".cache/**",
+      ".next/**",
+      ".turbo/**",
+      ".venv/**",
+      ".pytest_cache/**",
+      ".mypy_cache/**",
+      "__pycache__/**",
+      "node_modules/**",
+      "vendor/**",
+      "coverage/**",
+      "dist/**",
+      "build/**",
+      "out/**",
+      "target/**",
+      "DerivedData/**",
+      "Pods/**"
+    ]
+  },
+  "experimental": {
+    "mcp_timeout": 20000
+  },
   // ACP (Active Context Pruning) handles context management — disable built-in compaction
   "compaction": {
     "auto": false,
