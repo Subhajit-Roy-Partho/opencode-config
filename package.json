@@ -1,0 +1,18 @@
+{
+  "name": "opencode-config",
+  "private": true,
+  "description": "Shared opencode configuration: plugins, agents, skills and defaults. Versions verified 2026-09-09.",
+  "type": "module",
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.18.30",
+    "oh-my-opencode-slim": "^2.2.18",
+    "opencode-acp": "^1.16.0",
+    "opencode-copilot-plugin": "^0.6.4",
+    "opencode-mem": "^2.26.0",
+    "opencode-notify": "^0.3.1",
+    "opencode-pty": "^0.3.6",
+    "opencode-snip": "^1.6.1",
+    "opencode-supermemory": "^2.0.13",
+    "opencode-working-memory": "^1.6.9"
+  }
+}

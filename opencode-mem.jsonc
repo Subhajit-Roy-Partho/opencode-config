@@ -99,21 +99,28 @@
    // Auto-Capture Settings (REQUIRES EXTERNAL API)
    // ============================================
   
-  // IMPORTANT: Auto-capture ONLY works with external API
-  // It runs in background without blocking your main session
+  // IMPORTANT: Auto-capture ONLY works with a working model backend.
+  // It runs in background without blocking your main session.
   // Note: Ollama may not support tool calling. Use OpenAI, Anthropic, or Groq for best results.
-  
-  "autoCaptureEnabled": true,
+  //
+  // Default is OFF so a fresh clone never spams errors with the "sk-..." placeholder below.
+  // To enable, either:
+  //   1. (Recommended) use opencode's own auth — set "opencodeProvider" + "opencodeModel"
+  //      to a provider from `opencode providers list`, no API key needed; or
+  //   2. set all three of memoryModel + memoryApiUrl + memoryApiKey below,
+  //      then flip "autoCaptureEnabled" to true.
+  "autoCaptureEnabled": false,
   
   // Provider type: "openai-chat" | "openai-responses" | "anthropic"
   // Note: "openai-chat" is a generic OpenAI API-compatible mode.
   // Any service that follows the OpenAI Chat Completions API can use it via custom "memoryApiUrl".
   "memoryProvider": "openai-chat",
   
-  // REQUIRED for auto-capture (all 3 must be set):
+  // REQUIRED for auto-capture (all 3 must be set) — ignored while autoCaptureEnabled is false.
+  // Prefer "env://VAR_NAME" over pasting keys into this file.
   "memoryModel": "gpt-4o-mini",
   "memoryApiUrl": "https://api.openai.com/v1",
-  "memoryApiKey": "sk-...",
+  "memoryApiKey": "env://OPENAI_API_KEY",
 
   // API Key Formats:
   // Direct value:        "sk-..."

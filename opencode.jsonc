@@ -59,7 +59,7 @@
     "kotlin-ls":        { "disabled": true },
     "julials":          { "disabled": true },
     "jdtls":            { "disabled": true },
-    "haskell-language-server": { "disabled": true },
+    "hls":                 { "disabled": true },
     "gopls":            { "disabled": true },
     "gleam":            { "disabled": true },
     "fsharp":           { "disabled": true },
@@ -82,7 +82,6 @@
     "opencode-acp",
     // Agent orchestration & functionality
     "oh-my-opencode-slim",
-    "opencode-forgecode",
     // Utilities
     "opencode-pty",
     "opencode-copilot-plugin",
@@ -92,8 +91,7 @@
     "./plugins/env-protection.js",
     "./plugins/memory-compaction.js",
     "./plugins/notification.js",
-    "./plugins/shell-strategy.js",
-    "./plugins/todo-tracker.js"
+    "./plugins/shell-strategy.js"
   ],
   "agent": {
     "code-reviewer": {
@@ -124,8 +122,8 @@
       "prompt": "You are a debugging specialist. Systematically trace issues from error messages through the call stack. Identify root causes, not symptoms. Suggest minimal fixes and explain why the bug occurred. Verify your hypothesis before suggesting fixes."
     },
     "vision": {
-      "description": "Analyzes images, screenshots, diagrams, and visual content using Kimi K2.6 vision",
-      "model": "opencode-go/kimi-k2.6",
+      "description": "Analyzes images, screenshots, diagrams, and visual content",
+      "model": "{env:OPENCODE_MODEL}",
       "prompt": "You are a visual analysis expert. Analyze images, screenshots, diagrams, UI mockups, and other visual content in detail. Identify code, UI patterns, errors, architecture diagrams, or data in the image. Connect visual observations to the codebase and provide actionable insights or code changes."
     }
   },
@@ -247,7 +245,7 @@
     "plan": {
       "template": "Analyze the following request and create a detailed step-by-step implementation plan: $ARGUMENTS\n\nBreak it into phases with clear deliverables for each phase. Consider dependencies between phases.",
       "description": "Create an implementation plan",
-      "agent": "plan"
+      "agent": "architect"
     },
     "refactor": {
       "template": "Analyze the codebase for refactoring opportunities in the files related to: $ARGUMENTS\n\nLook for duplicated code, long functions, tight coupling, and violations of SOLID principles. Suggest and implement improvements.",
@@ -272,7 +270,7 @@
     },
     "vision": {
       "template": "Analyze the attached image(s) and: $ARGUMENTS",
-      "description": "Analyze images or screenshots with Kimi K2.6 vision",
+      "description": "Analyze images or screenshots with the vision agent",
       "agent": "vision"
     }
   }
