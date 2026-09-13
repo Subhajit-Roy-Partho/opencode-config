@@ -12,7 +12,7 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 
 | Path | What |
 |---|---|
-| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents, slash commands, plugin list, NanoGPT provider |
+| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm`), slash commands, plugin list, NanoGPT + Apple (fm-proxy) providers |
 | `tui.json` | Theme, scroll and mouse defaults |
 | `opencode-mem.jsonc` | Seed for `opencode-mem` (auto-capture **off** until you add a backend — no placeholder-key errors) |
 | `acp.jsonc` | Seed for `opencode-acp` (context pruning) |
@@ -45,6 +45,20 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 
 > `opencode-snip` disables itself gracefully when the `snip` binary is missing —
 > install it to activate (see below). Nothing else requires native binaries.
+
+## Session additions (2026-09-13)
+
+- **`afm` general-assistant agent** (`agent.afm` in `opencode.jsonc`, model
+  `apple/system`, `mode: primary`) — everyday Q&A, not just coding. Lean toolset
+  (`webfetch` + `bash`, everything else off) to fit AFM's 4k context window.
+  Its prompt routes weather lookups through `https://wttr.in/<City>?format=j1`.
+- **Apple provider via fm-proxy** (`provider.apple`, baseURL
+  `http://127.0.0.1:1977/v1`, `tool_call: false`, 4096/2048 limits). Dependency:
+  the proxy itself lives in the sibling repo `Documents/Github/fm-proxy` and
+  must be running as a daemon for `apple/system` to resolve.
+- **Default model** is now `opencode/muse-spark-1.3-contributor-free` (was
+  `opencode/big-pickle`). Requires `opencode auth login` for Zen auth.
+- **Orchestrator guard** — `agent.orchestrator.permission.copilot_prompt: deny`.
 
 ## Install
 

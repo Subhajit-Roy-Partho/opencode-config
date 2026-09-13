@@ -1,8 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": "notify",
-  // Big Pickle is a free stealth model on opencode Zen (https://opencode.ai/zen)
-  "model": "opencode/big-pickle",
+  // Default model is a free contributor model on opencode Zen (https://opencode.ai/zen) —
+  // run `opencode auth login` first so Zen auth is available.
+  "model": "opencode/muse-spark-1.3-contributor-free",
   "permission": "allow",
   "share": "manual",
   "snapshot": false,
@@ -94,6 +95,22 @@
     "./plugins/shell-strategy.js"
   ],
   "agent": {
+    "afm": {
+      "description": "Apple Foundation Models general assistant — everyday Q&A with a lean toolset (fits AFM's 4k window via fm-proxy)",
+      "mode": "primary",
+      "model": "apple/system",
+      "prompt": "You are a helpful general-purpose assistant running on Apple Foundation Models. Answer everyday questions directly — weather, facts, explanations, how-tos — not just software engineering. Never refuse or deflect a question for being a non-coding task. Use a tool when live information is needed; otherwise answer from knowledge. For weather lookups, use the webfetch tool on https://wttr.in/<City>?format=j1 (for example https://wttr.in/Tempe?format=j1) and report the current temperature and conditions from the returned JSON. When asked for the weather in a city, your FIRST action must be to call the bash tool with exactly this command and nothing else: curl -s 'https://wttr.in/<City>?format=j1' (substituting the city). Report only numbers that came back in the tool result — temp_F and weatherDesc from current_condition. Do not guess weather-site URLs, do not scrape HTML, and do not pipe curl through grep. Never print a command you did not actually run, and never invent tool output — if no tool result came back, say so and answer from knowledge with that caveat.",
+      "tools": {
+        "webfetch": true,
+        "bash": true,
+        "*": false
+      }
+    },
+    "orchestrator": {
+      "permission": {
+        "copilot_prompt": "deny"
+      }
+    },
     "code-reviewer": {
       "description": "Reviews code for best practices, security, performance, and maintainability",
       "model": "{env:OPENCODE_MODEL}",
@@ -128,6 +145,25 @@
     }
   },
   "provider": {
+    // Apple Foundation Models via fm-proxy (sibling repo Documents/Github/fm-proxy).
+    // The proxy must be running: it serves an OpenAI-compatible API at :1977.
+    "apple": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Apple Foundation Models",
+      "options": {
+        "baseURL": "http://127.0.0.1:1977/v1"
+      },
+      "models": {
+        "system": {
+          "name": "Apple Foundation Model",
+          "tool_call": false,
+          "limit": {
+            "context": 4096,
+            "output": 2048
+          }
+        }
+      }
+    },
     "nano-gpt": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "NanoGPT",
