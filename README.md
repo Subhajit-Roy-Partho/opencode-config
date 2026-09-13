@@ -12,7 +12,8 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 
 | Path | What |
 |---|---|
-| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm` chat + `afm-run` runner), slash commands, plugin list, NanoGPT + Apple (fm-proxy) providers |
+| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm` chat + `afm-run` runner), slash commands (incl. `/weather` + `/search`), local weather MCP wiring, plugin list, NanoGPT + Apple (fm-proxy) providers |
+| `mcp-weather/weather.js` | Zero-dependency stdio MCP server: `get_temperature(city)` via wttr.in (synced to `~/.config/opencode/mcp-weather/` by `install.sh`) |
 | `tui.json` | Theme, scroll and mouse defaults |
 | `opencode-mem.jsonc` | Seed for `opencode-mem` (auto-capture **off** until you add a backend — no placeholder-key errors) |
 | `acp.jsonc` | Seed for `opencode-acp` (context pruning) |
@@ -76,6 +77,35 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 - **Caveats:** model prose summaries of tool output are loose (trust the
   tool-result event, not the prose); `tool_choice: auto` never yields
   `tool_calls` upstream; full toolsets overflow the 4096-token window.
+- **CORRECTION (see update 3 below):** the "executes reliably" claim above was
+  premature — follow-up honest self-tests showed `afm-run` on `apple/system`
+  only executed ~1 in 8 attempts. AFM stays chat-only.
+## Session additions (2026-09-13, update 3: weather MCP + `/weather` + `/search`)
+
+- **New file `mcp-weather/weather.js`** — zero-dependency stdio MCP server
+  with one tool, `get_temperature(city)`, backed by wttr.in. Kept to one tool
+  with one string param so the schema survives fm-serve. `install.sh` now
+syncs `mcp-weather/` into `~/.config/opencode/` alongside
+  `plugins/ agents/ skills/`. NOTE: the `mcp.weather` command path in
+  `opencode.jsonc` is this machine's absolute path
+  (`/Users/subhajitrouy/.config/opencode/mcp-weather/weather.js`) — adjust it
+  on other machines.
+- **`mcp.weather` block** — local MCP wiring for the above
+  (`type: local`, `command: ["node", "<path>/weather.js"]`, `enabled: true`).
+- **`command.weather` (`/weather <city>`)** — exact-command curl against
+  wttr.in, report verbatim. **`command.search` (`/search <query>`)** —
+  DuckDuckGo Lite + python tag-strip, then summarize. Both deliberately NOT
+  agent-pinned; both require a tool-capable model.
+- **`afm-run` tools** gained `weather_*` alongside `bash`.
+- **Honest self-test findings** (all verified by direct `opencode run`, not
+  relayed): on `apple/system` the model narrates instead of executing — even
+  exact-phrasing and explicit MCP naming failed (only ~1 echo in 8 attempts
+  executed). So AFM stays chat-only and these features target capable models.
+  On `asu/muse-glimmer-30b` all three paths VERIFIED working: exact-command
+  weather → real 86°F Tempe execution, natural question →
+  `weather_get_temperature` MCP call → 86°F, DDG search → real results with
+  summary. This corrects update 2's premature `afm-run` "executes reliably"
+  claim.
 
 ## Install
 

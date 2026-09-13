@@ -110,6 +110,7 @@
       "model": "apple/system",
       "tools": {
         "bash": true,
+        "weather_*": true,
         "*": false
       }
     },
@@ -270,6 +271,14 @@
     }
   },
   "mcp": {
+    "weather": {
+      "type": "local",
+      "command": [
+        "node",
+        "/Users/subhajitrouy/.config/opencode/mcp-weather/weather.js"
+      ],
+      "enabled": true
+    },
     "composio": {
       "type": "remote",
       "url": "https://connect.composio.dev/mcp",
@@ -284,6 +293,14 @@
     "test": {
       "template": "Run the full test suite and analyze any failures. Focus on the failing tests, identify root causes, and suggest fixes.",
       "description": "Run tests and fix failures"
+    },
+    "weather": {
+      "template": "Use the bash tool to run exactly this command and nothing else: curl -s --max-time 20 'https://wttr.in/$ARGUMENTS?format=%l:+%c+%t+humidity+%h+wind+%w' — then report the result exactly as returned.",
+      "description": "Live temperature and conditions for a city (needs a tool-capable model)"
+    },
+    "search": {
+      "template": "Use the bash tool to run exactly this command and nothing else: curl -s --max-time 20 -A 'Mozilla/5.0' 'https://lite.duckduckgo.com/lite/?q=$ARGUMENTS' | python3 -c \"import sys,html,re; t=re.sub('<[^>]+>',' ',sys.stdin.read()); print(html.unescape(re.sub(r'\\s+',' ',t))))\" | head -c 2000 — then summarize the results in your own words.",
+      "description": "Web search via DuckDuckGo Lite (needs a tool-capable model)"
     },
     "plan": {
       "template": "Analyze the following request and create a detailed step-by-step implementation plan: $ARGUMENTS\n\nBreak it into phases with clear deliverables for each phase. Consider dependencies between phases.",

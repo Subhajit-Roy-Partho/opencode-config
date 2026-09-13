@@ -56,7 +56,7 @@ else
   mkdir -p "$CONFIG_DIR"
 fi
 
-for d in plugins agents skills; do
+for d in plugins agents skills mcp-weather; do
   if [ -d "$REPO_DIR/$d" ]; then
     mkdir -p "$CONFIG_DIR/$d"
     cp -R "$REPO_DIR/$d/." "$CONFIG_DIR/$d/"
