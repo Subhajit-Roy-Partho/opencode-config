@@ -151,6 +151,29 @@ syncs `mcp-weather/` into `~/.config/opencode/` alongside
   (wrong tool choice + broken JSON). Iteration round 2 in progress — injection
   v2 + repair extension targeting `ls`/math.
 
+## Session additions (2026-09-13, update 6: FULL-FUNCTIONAL RESULT — tool-voice-proxy)
+
+- **tool-voice-proxy (:1981 → fm-proxy :1977 → fm serve :1976) turns the on-device
+  3B Apple model into a functional agentic driver in opencode.** Mechanism:
+  per-request text-envelope protocol injection; the model's narrated
+  `{"tool_call":[{"name","arguments"}]}` JSON — including sloppy variants (bare
+  tokens, unquoted DSL args, trailing commas, missing closing bracket) — repaired
+  by a 9-step pipeline (incl. string-aware truncated-JSON completion) and re-emitted
+  as REAL OpenAI `tool_calls` so opencode executes them; STRIP-on-invalid keeps raw
+  JSON out of replies; per-request user-message directives substitute the concrete
+  real command for directory-intent and run-command intents (the lever that fixed
+  `ls`).
+- **FINAL SELF-TESTED BATTERY** (`opencode run --agent afm-agent`): T1 "What is the
+  temperature in Tempe right now?" **4/4** — real `weather_get_temperature` call,
+  live ~86°F/44% data, NO `/weather` command needed; T2 "List the files in <dir>"
+  **3/3** (3 phrasings incl. "current directory") — real `ls`, EXACT real filenames,
+  zero fabrication; T3 "Use bash to run: echo EXECMARKER-777 > <file>" **2/2** —
+  side-effect file proof; T4 "2 + 2" **3/3** — clean text, zero spurious calls.
+- **Hit-rate:** 4 envelope=hit / 0 invalid / no false positives. All three
+  emails/rounds iterations recorded (round-1: weather-only pass; round-2: `ls`
+  failed; round-3: user-directive lever). Daemon restart command in
+  `tool-voice-proxy/README.md`.
+
 ## Install
 
 ```bash

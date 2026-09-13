@@ -36,10 +36,21 @@ const MAX_ENV = 2048;            // sanity cap on one envelope region
 // already edits content by design.
 const MARKERS = /<start_of_turn>|<end_of_turn>|<ctrl\d+>|<\|[^|>]*\|>/g;
 
+// Round-2 injection v2: per-tool purpose rules + LIVE-DATA rule + tightened
+// NO-TOOL rule (the 3B drifts to fenced-bash narration for file ops and invents
+// webfetch for arithmetic unless the boundaries are spelled out).
 const INSTRUCTION =
-  "End your reply with exactly one JSON object, nothing after it, no code fences: " +
-  '{"tool_call":[{"name":"tool-name","arguments":{"parameter":"value"}}]}. ' +
-  "Call a tool only when truly needed; otherwise answer in plain text.";
+  "End with exactly one JSON object, nothing after it, no code fences: " +
+  '{"tool_call":[{"name":"tool-name","arguments":{}}]}. ' +
+  "Live data (weather, time, files, dirs, internet) requires the envelope with the best-fitting tool — never fake, guess, or show code-fence commands. " +
+  "Facts you already know (basic math): answer in plain text, never call a tool.";
+
+// Per-tool purpose hints appended after the instruction (only for offered tools).
+const TOOL_PURPOSES = {
+  weather_get_temperature: "live weather for a city",
+  webfetch: "fetching a specific web page or URL",
+  bash: "running shell/file commands (ls, cat, echo, curl)",
+};
 
 // ── envelope patterns ────────────────────────────────────────────────────────
 // Native array form  {"tool_call": [{"name": ..., "arguments": {...}}]} or the
@@ -106,6 +117,23 @@ function isObjectClosed(envJSON) {
 //      else (extra braces, truncated, both open) falls through to pass-through.
 function repairStart(raw) {
   let out = raw;
+  // --- step 6c FIRST: numeric option fused into the next key ("timeout:120000,workdir":"…") ---
+  // Observed live: …,"command":"ls /tmp/x","timeout:120000,workdir":"/private/tmp/x"}}]}
+  // (the model dropped `":120000,"` — timeout's closing quote AND the quote before
+  // workdir). Split into "timeout":120000,"workdir":"…". MUST run before step 6 —
+  // the key-fusion repair would otherwise corrupt "timeout:120000,workdir" into
+  // "timeout":"120000,workdir" (it cannot tell the fused key from a quoted key).
+  // Only fires for digit-only first value followed by a second key; gated by
+  // parse+offered-name validation downstream.
+  // flat-arguments form (observed live): "arguments":"ls /tmp/x",timeout:120000,
+  // workdir:"/tmp" — the arguments value is a bare STRING and timeout/workdir are
+  // siblings at the item level. Convert to the nested shape opencode expects.
+  out = out.replace(/"arguments"\s*:\s*"((?:[^"\\]|\\.)*)"\s*,\s*(timeout)\s*:\s*(\d+)\s*,\s*(workdir)\s*:\s*"((?:[^"\\]|\\.)*)"/g, '"arguments":{"command":"$1","$2":$3,"$4":"$5"}');
+  out = out.replace(/"([A-Za-z_][A-Za-z0-9_]*):(\d+),([A-Za-z_][A-Za-z0-9_]*)("\s*:\s*")/g, '"$1":$2,"$3":"');
+  // ...and the fully-bare variant: "timeout:120000,workdir:/private/tmp/x (second
+  // value unquoted too — the model free-mixes quoted head with DSL tail). Only for
+  // digit-only first value + one more key:barevalue; gated downstream.
+  out = out.replace(/"([A-Za-z_][A-Za-z0-9_]*):(\d+),([A-Za-z_][A-Za-z0-9_]*):([A-Za-z0-9_./\-]+)(?=[,\]}\s])/g, '"$1":$2,"$3":"$4"');
   // --- step 8 FIRST: unquoted key:value args-body recovery (observed live) ---
   // The weak model emits "arguments":{"command:echo X > /tmp/y,timeout:120000,workdir:/tmp}
   // — keys AND values unquoted; the whole arguments object is a comma-separated
@@ -137,6 +165,12 @@ function repairStart(raw) {
   out = out.replace(/(?<!\w)([\[,{:]\s*)([A-Za-z_][A-Za-z0-9_.\-]*)(\s*[\],}:])/g, '$1"$2"$3');
   out = out.replace(/^\{\s*([A-Za-z_][A-Za-z0-9_]*)"?\s*:/, '{"$1":');
   out = out.replace(/"([A-Za-z_][A-Za-z0-9_]*):([A-Za-z_][A-Za-z0-9_.\-]*)(?=[,\]}\s])/g, '"$1":"$2"');
+  // --- step 6b: double-quote before a bareword value (""ls /path" → "ls /path") ---
+  // Observed live: {"tool_call":[{"name":"bash","arguments":{"command":""ls /tmp/afm-agent-check",…}}]}
+  // The model opened the value with TWO quotes. Value-position only (`:` before),
+  // ≥1 non-quote char, closed by a quote followed by delimiters — empty strings
+  // (no chars) and string interiors untouched.
+  out = out.replace(/:\s*""([^"]+)"(?=[,\]}\s])/g, ':"$1"');
   // --- missing array-close repair (step 6) ---
   const t = out.trimEnd();
   if (t.endsWith("}")) {
@@ -180,6 +214,54 @@ function repairStart(raw) {
   return out;
 }
 
+// ── truncated-JSON completion (round-2 step 9) ──────────────────────────────
+// The weak model cuts envelopes off mid-object or drops/swaps a closing
+// delimiter (observed live: {"tool_call":[{"name":"bash","arguments":{...}}}
+// missing the ]; ...html"]}]} — a `]` where `}` belonged). Rebalance the
+// string, string-aware: on a mismatched closer, close the intervening open
+// frames first and accept it (skip a stray closer when nothing is open);
+// at the end append the missing closers in stack order (≤6). The result is
+// ONLY honored when it parses AND every tool name matches the offered set
+// (validated in toCalls downstream) — never half-synthesized. Returns null
+// when the string is balanced-and-unchanged, over MAX_ENV, or unrestorable.
+function completeEnvelope(raw) {
+  if (typeof raw !== "string" || raw.length === 0 || raw.length > MAX_ENV) return null;
+  const s = repairStart(raw);
+  if (s.length > MAX_ENV) return null;
+  let out = "", stack = [], inStr = false, esc = false, changed = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (inStr) {
+      out += c;
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') { inStr = true; out += c; continue; }
+    if (c === "{" || c === "[") { stack.push(c === "{" ? "}" : "]"); out += c; continue; }
+    if (c === "}" || c === "]") {
+      if (stack.length === 0) { changed = true; continue; }      // stray closer → drop
+      const top = stack[stack.length - 1];
+      if (top === c) { stack.pop(); out += c; continue; }
+      const idx = stack.lastIndexOf(c);                          // matches an open frame
+      if (idx !== -1) {
+        out += stack.slice(idx + 1).join("") + c;                // close frames above it, then accept
+        stack = stack.slice(0, idx);
+        changed = true;
+        continue;
+      }
+      changed = true;                                            // truly stray → drop
+      continue;
+    }
+    out += c;
+  }
+  if (stack.length === 0) return changed ? out : null;
+  if (stack.length > 6) return null;
+  out += stack.reverse().join("");       // LIFO: last-opened frame closes first
+  return out;
+}
+
 // Strict parse first; on failure attempt a NARROW, deterministic repair for the
 // token-level sloppiness the weak model exhibits (observed live): a missing
 // opening quote on the envelope's first key and unquoted bare scalar values
@@ -195,6 +277,11 @@ function tryParse(raw) {
   let out = raw.trim();
   if (!out.startsWith("{")) return null;
   out = repairStart(out);
+  // Gate the value-repair: only when the repairStart output STILL fails to parse.
+  // Running it unconditionally corrupts valid numeric values ("timeout":120000 →
+  // "timeout":"120000) because it cannot tell a quoted-key+bare-value corruption
+  // ("city":Tempe) from a legitimate quoted-key+numeric-value pair.
+  try { return JSON.parse(out); } catch { /* keep repairing */ }
   out = out.replace(
     /("\s*(?:"(?:\\.|[^"\\])*"|[A-Za-z_][A-Za-z0-9_]*)"?\s*:)\s*([A-Za-z_][A-Za-z0-9_.\-]*)(?=[,\]}\s])/g,
     '$1"$2"'
@@ -253,6 +340,12 @@ function toCalls(raw, offered) {
     if (typeof args === "string") { try { args = JSON.parse(args); } catch { args = null; } }
     if (!args || typeof args !== "object" || Array.isArray(args)) {
       args = {};
+      // flat-arguments fallback: a non-JSON string arguments is the COMMAND
+      const flatCmd = typeof it.arguments === "string" && it.arguments.trim()
+        ? it.arguments.trim()
+        : it.function && typeof it.function.arguments === "string" && it.function.arguments.trim()
+          ? it.function.arguments.trim() : null;
+      if (flatCmd) args.command = flatCmd;
       for (const k of Object.keys(it)) {
         if (RESERVED.has(k)) continue;
         const v = it[k];
@@ -376,10 +469,53 @@ function injectInstruction(parsed, offeredNames) {
   const msgs = Array.isArray(parsed.messages) ? parsed.messages : [];
   const last = msgs.length ? msgs[msgs.length - 1] : null;
   if (!last || last.role !== "user") return JSON.stringify(parsed);
+  // Lever B — directory/file-intent directive appended to the USER message itself
+  // (not the global instruction): conservative regex, exact-directory-intent only,
+  // and only when the previous turn didn't already attempt an envelope (i.e. the
+  // last-but-one message is NOT an assistant tool call we answered with a result).
+  const prev = msgs.length > 1 ? msgs[msgs.length - 2] : null;
+  const prevAttemptedEnvelope =
+    prev && // assistant answered a tool result → already attempted
+    ((prev.role === "assistant" && Array.isArray(prev.tool_calls) && prev.tool_calls.length) ||
+     (prev.role === "assistant" && typeof prev.content === "string" && /"tool_call"\s*:/.test(prev.content)));
+  const userText = (typeof last.content === "string" ? last.content : "").trim();
+  const dirIntent = /\b(list|show|what)\b[\s\S]{0,40}?\b(in|files|contents|directory)\b|\bls\b/i;
+  const dirHint = /\/|~|\b(current|here|directory|folder|this dir)\b/i;
+  if (
+    !prevAttemptedEnvelope &&
+    dirIntent.test(userText) &&
+    dirHint.test(userText)
+  ) {
+    // Substitute the REAL path from the user message into the example — the weak
+    // model copies `<path>` verbatim (T2-2: ran `ls <path>` literally) whenever
+    // the placeholder stays generic.
+    const pathMatch = userText.match(/\/[^\s"']+/);
+    const examplePath = pathMatch ? pathMatch[0].replace(/[?.,;!:'")]+$/, "") : "<path>";
+    last.content +=
+      "\n\nTo answer this, first emit exactly: " +
+      `{"tool_call":[{"name":"bash","arguments":{"command":"ls ${examplePath}"}}]}, nothing before it.`;
+  }
+  // Lever B-bis — explicit run-command intent ("Use bash to run: echo X > f"):
+  // append a concrete envelope with the REAL command substituted. The weak model
+  // otherwise falls back to narrating a fenced bash block (its training prior).
+  const runIntent = /\b(use\s+bash|run|execute)\b/i;
+  if (!prevAttemptedEnvelope && runIntent.test(userText)) {
+    const cmdMatch = userText.match(/[:\-–]\s*([^\n]{1,200})$/);
+    const exampleCmd = cmdMatch ? cmdMatch[1].trim().replace(/["`]/g, "") : "<the exact command>";
+    last.content +=
+      "\n\nTo execute a shell command, first emit exactly, never a code block: " +
+      `{"tool_call":[{"name":"bash","arguments":{"command":"${exampleCmd}"}}]}, nothing after it.`;
+  }
   let lastSys = -1;
   msgs.forEach((m, i) => { if (m && (m.role === "system" || m.role === "developer")) lastSys = i; });
   const names = offeredNames ? [...offeredNames] : [];
-  const instr = { role: "system", content: INSTRUCTION + (names.length ? ` Offered tools: ${names.join(", ")}.` : "") };
+  const purposes = names.map((n) => `${n} = ${TOOL_PURPOSES[n] || "an offered tool"}`).join("; ");
+  const instr = {
+    role: "system",
+    content: INSTRUCTION +
+      (purposes ? ` Tool purposes: ${purposes}.` : "") +
+      (names.length ? ` Offered tools: ${names.join(", ")}.` : ""),
+  };
   if (lastSys >= 0) msgs.splice(lastSys + 1, 0, instr);
   else msgs.unshift(instr);
   parsed.messages = msgs;
@@ -525,12 +661,29 @@ function handleStream(res, proxyReq, proxyRes, parsed, forwardBody) {
   function finalize() {
     if (finalized) return;
     finalized = true;
+    // Stream ended with an unclosed/unparseable envelope → last chance: truncated-JSON
+    // completion (only here, never mid-stream — the envelope may still be typing).
+    if (st === "envelope" && !envClosed) {
+      const completed = completeEnvelope(envJSON);
+      const obj = completed ? tryParse(completed) : null;
+      const calls = obj ? toCalls(obj, offered) : null;
+      if (calls && finalPositionOk(completed, completed.length - 1)) {
+        env = calls;
+        invalid = false;          // completion supersedes the earlier failed parse
+        envClosed = true;
+        closedAt = completed.length - 1;
+      } else {
+        invalid = true;
+      }
+    }
     const synthesized = synthesize();
     const tailRaw = st === "envelope" ? envJSON : buf;
     log(`envelope=${synthesized ? "hit" : (envClosed || invalid ? "invalid" : "miss")} calls=${synthesized ? env.length : 0} finish=${synthesized ? "tool_calls" : "verbatim"} rawlen=${buf.length}/${envJSON.length} tail=${JSON.stringify(tailRaw.slice(-80))}`);
     if (!synthesized) {
-      // Pass-through: flush everything that was held back as plain text.
-      if (st === "envelope" && envJSON) sendDelta({ content: envJSON });
+      // STRIP-on-invalid: a call-like remainder (this proxy only enters envelope
+      // mode when a tool_call/tool_calls/tool object started) is NEVER relayed —
+      // the pre-envelope prose was already emitted live, so the user gets clean
+      // truncated prose instead of raw JSON garbage. Non-call text passes through.
       if (st === "text" && buf) sendDelta({ content: buf });
     }
     emitFinish(synthesized);
@@ -609,6 +762,8 @@ function handleNonStream(res, proxyReq, proxyRes, parsed) {
             if (c === "{" || c === "[") depth++;
             else if (c === "}" || c === "]") { depth--; if (depth === 0) { endIdx = i; break; } }
           }
+          const pre = clean.slice(0, k).replace(/(```)\s*[a-zA-Z]*\s*$/, "");
+          let stripped = false;
           if (endIdx !== -1 && finalPositionOk(region, endIdx)) {
             let obj2 = tryParse(stripFence(region.slice(0, endIdx + 1)));
             const calls = obj2 ? toCalls(obj2, offered) : null;
@@ -616,11 +771,32 @@ function handleNonStream(res, proxyReq, proxyRes, parsed) {
               msg.tool_calls = calls.map((c) => ({
                 id: cid(), type: "function", function: { name: c.name, arguments: JSON.stringify(c.arguments) },
               }));
-              const pre = clean.slice(0, k).replace(/(```)\s*[a-zA-Z]*\s*$/, "");
               msg.content = stripMarkers(pre) || null;
               obj.choices[0].finish_reason = "tool_calls";
               log(`envelope=hit calls=${calls.length} mode=sync`);
+              stripped = true;
             }
+          }
+          if (!stripped) {
+            // Truncated-JSON completion (mirror of the stream path).
+            const completed = completeEnvelope(clean.slice(k));
+            const obj3 = completed ? tryParse(completed) : null;
+            const calls3 = obj3 ? toCalls(obj3, offered) : null;
+            if (calls3 && finalPositionOk(completed, completed.length - 1)) {
+              msg.tool_calls = calls3.map((c) => ({
+                id: cid(), type: "function", function: { name: c.name, arguments: JSON.stringify(c.arguments) },
+              }));
+              msg.content = stripMarkers(pre) || null;
+              obj.choices[0].finish_reason = "tool_calls";
+              log(`envelope=hit calls=${calls3.length} mode=sync-completed`);
+              stripped = true;
+            }
+          }
+          if (!stripped) {
+            // STRIP-on-invalid: never show raw JSON garbage — drop the call-like
+            // remainder, keep the pre-envelope prose.
+            msg.content = stripMarkers(pre) || null;
+            log(`envelope=invalid mode=sync-strip`);
           }
         }
       }

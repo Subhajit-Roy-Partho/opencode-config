@@ -43,8 +43,16 @@ Injected system instruction (appended after the last system/developer message, u
 if none, on tool-bearing requests only — title-gen streams get no instruction; ~50 tokens):
 
 > End your reply with exactly one JSON object, nothing after it, no code fences:
-> `{"tool_call":[{"name":"tool-name","arguments":{"parameter":"value"}}]}`. Call a tool
-> only when truly needed; otherwise answer in plain text.
+> `{"tool_call":[{"name":"tool-name","arguments":{"parameter":"value"}}]}`.
+> For live data (weather, time, files, directories, internet) you MUST emit the
+> envelope calling the best-fitting tool. Never fake, guess, or show code-fence
+> commands — emit the envelope or answer plainly. For simple facts you already know
+> (e.g. basic arithmetic), answer in plain text; never call a tool.
+>
+> A per-tool purposes hint follows for the tools actually offered in the request:
+> `bash = running shell/file commands (ls, cat, echo, curl)`, `webfetch = fetching a
+> specific web page or URL`, `weather_get_temperature = live weather for a city`.
+> Full injection ≈ 95–110 tokens.
 
 Only a JSON object at **final position** (nothing but whitespace / a closing
 ```` ``` ```` fence after it) is honored, and only when **every** tool name matches a
@@ -81,6 +89,19 @@ passes through untouched:
 6. Quoted key fused to bare value: `"city:Tempe` → `"city":"Tempe`
 7. Missing array-close: `…"command":"…"}}` (drops the `]`) → `…}}]}`
 8. Trailing comma: `…marker.txt",}}]}` → `…marker.txt"}}]}` (string-aware — never touches string interiors)
+9. **Truncated-JSON completion** (stream end only): rebalance the region string-aware on a
+   mismatched closer — close the intervening open frames, drop stray closers, and append
+   the missing closers (≤6) in LIFO order. Fixes both `…html"]}]}` (a `]` where `}`
+   belonged — the round-1 2+2 shape) and envelopes cut mid-string. Gated by the same
+   parse + offered-name validation.
+
+### STRIP-on-invalid
+
+When the stream ends call-like (`tool_call`/`tool_calls`/`tool` object was detected at
+any point) but every repair fails, the remainder is **dropped** from the relayed text —
+the pre-envelope prose was already emitted live, so the user gets clean truncated prose
+and never sees raw JSON garbage. Non-call text passes through untouched. (Round-2
+measured: `envelope=invalid` relays = 0.)
 
 ## What passes through untouched
 
@@ -128,20 +149,31 @@ whole point is that tools are offered so the model can emit an envelope.
 
 ## Known limits
 
-- **Empirical hit rate (3B fm model, measured 2026-09-13):** `weather_get_temperature`
-  (Tempe) consistently produced real tool calls (~4/4); `bash` execution (EXECMARKER
-  side-effect) landed 3/6 main-stream attempts with a real file created on the hits;
-  `ls` file-listing and `2 + 2` frequently degraded to **narrated** bash (fenced code,
-  no envelope) or a spurious/malformed `webfetch` envelope — pass-through showed the raw
-  JSON instead of a clean text answer. The 3B model's *voluntary* envelope emission is
-  the make-or-break factor; a prose escape always wins with this model family (fm-proxy
-  AGENTS.md: auto 0/25 with an escape). The injection forbids the escape and
-  final-position enforcement rejects explain-then-call narratives, but the hit rate is
-  an empirical question and **varies by task** — weather-type calls are much more
-  reliable than bash.
+- **Empirical hit rate (3B fm model, round-3 measured 2026-09-13, injection v3 + step-9
+  completion + STRIP + Lever-B user-message directives):**
+  - weather: **4/4** real calls (real 86°F Tempe data from the weather MCP).
+  - file-listing (`List the files in <path>` / `What is in <path>?` / `List files in the
+    current directory`): **3/3 — was 0/3 in round 2.** The fix was two-fold: (a) the global
+    instruction's forced directory example (140 chars with `timeout`/`workdir`) was too
+    long for the 3B to reproduce — it free-mixed shapes (`"arguments":"ls …"` string,
+    `"command":"ls "/…,timeout:120000,workdir:"…`, `ls <path>/realpath`, trailing `?`) for
+    9+ distinct variants. Solution: removed the example from the global instruction and
+    moved it to a **Lever-B per-request directive appended to the user message itself**,
+    fired only on conservative directory-intent regex
+    (`\b(list|show|what)\b … \b(in|files|contents|directory)\b` + a path hint), with the
+    REAL path from the user message substituted into the example. The model copies the
+    concrete example faithfully (T2-1 `ls /private/tmp/afm-agent-check`, T2-2
+    `ls /tmp/afm-agent-check`, T2-3 resolved cwd itself → `ls /private/tmp/afm-agent-check`);
+    - bash EXECMARKER side-effect: **2/2** this round (marker.txt = EXECMARKER-777 real);
+      the generic instruction alone regressed T3 to fenced narration, so a Lever-B-bis
+      run-command directive (`\b(use\s+bash|run|execute)\b`) with the real command
+      substituted fixed it — proof only the envelope is needed, the 3B executes when the
+      example is concrete.
+  - 2+2 → clean `4` with zero envelopes (the NO-TOOL rule + keeping the directory example
+    OUT of the global instruction prevents spurious `ls <path>` envelopes on math).
+  - `envelope=invalid` relays = 0 (STRIP + narrow repairs); 14 tool-bearing requests in
+    the final daemon session → 4 envelope=hit, 0 invalid, rest plain follow-ups.
 - 4096-token context window: opencode's default orchestrator overflows; `afm-agent` uses
   a lean toolset. Overflow surfaces as typed `context_length_exceeded` from fm-proxy.
 - Assistant `tool_calls` history is flattened to `""` content by fm-proxy's
   `splitMessages`, so follow-up turns see tool results but not tool names.
-- T4 (2+2) is the known-weak case: the model invents `webfetch` for math and often
-  emits broken JSON (`"]}]}`) that correctly fails validation → raw text passes through.
