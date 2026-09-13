@@ -107,6 +107,24 @@ syncs `mcp-weather/` into `~/.config/opencode/` alongside
   summary. This corrects update 2's premature `afm-run` "executes reliably"
   claim.
 
+## Session additions (2026-09-13, update 4: `afm` anti-fabrication sentence)
+
+- **`agent.afm.prompt` gained one sentence:** "Never invent tool output,
+  numbers, JSON, or city data — if you did not retrieve it, say plainly it is
+  unavailable instead of guessing."
+- **Why:** the user showed `afm` answering a Tempe weather prompt with a
+  mangled command (`| head -1` tacked on) plus fabricated JSON
+  (`{"location":"New York",...}`) for a Tempe query. Root cause: the ~3B
+  on-device model was never trained to emit OpenAI-style function calls, so
+  under uncertainty it narrates or confabulates — no config can teach the
+  missing training. This tweak doesn't enable execution; it converts lying
+  into honest refusal.
+- **Self-test** (direct `opencode run --agent afm "What is the temperature in
+  Tempe right now?"`): "I cannot provide real-time weather data… This
+  information is unavailable at the moment." — no fabrication. Live-data path
+  remains `/weather`, `/search`, and the weather MCP tool on tool-capable
+  models (asu/Zen), all previously verified.
+
 ## Install
 
 ```bash
