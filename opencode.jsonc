@@ -114,6 +114,17 @@
         "*": false
       }
     },
+    "afm-agent": {
+      "description": "Apple Foundation Models via tool-voice-proxy — narrated JSON envelopes translated into real tool calls (bash/webfetch/weather MCP)",
+      "mode": "primary",
+      "model": "apple/system",
+      "tools": {
+        "*": false,
+        "bash": true,
+        "webfetch": true,
+        "weather_get_temperature": true
+      }
+    },
     "orchestrator": {
       "permission": {
         "copilot_prompt": "deny"
@@ -153,18 +164,19 @@
     }
   },
   "provider": {
-    // Apple Foundation Models via fm-proxy (sibling repo Documents/Github/fm-proxy).
-    // The proxy must be running: it serves an OpenAI-compatible API at :1977.
+    // Apple Foundation Models via tool-voice-proxy (sibling repo
+    // Documents/Github/tool-voice-proxy) → fm-proxy (:1977) → fm serve.
+    // The tool-voice-proxy daemon must be running: it translates the model's
+    // narrated {"tool_call":[...]} JSON into real OpenAI tool_calls at :1981.
     "apple": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Apple Foundation Models",
       "options": {
-        "baseURL": "http://127.0.0.1:1977/v1"
+        "baseURL": "http://127.0.0.1:1981/v1"
       },
       "models": {
         "system": {
           "name": "Apple Foundation Model",
-          "tool_call": false,
           "limit": {
             "context": 4096,
             "output": 2048

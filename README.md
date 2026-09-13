@@ -12,8 +12,9 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 
 | Path | What |
 |---|---|
-| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm` chat + `afm-run` runner), slash commands (incl. `/weather` + `/search`), local weather MCP wiring, plugin list, NanoGPT + Apple (fm-proxy) providers |
+| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm` chat + `afm-run` runner + `afm-agent` via tool-voice-proxy), slash commands (incl. `/weather` + `/search`), local weather MCP wiring, plugin list, NanoGPT + Apple (tool-voice-proxy → fm-proxy) providers |
 | `mcp-weather/weather.js` | Zero-dependency stdio MCP server: `get_temperature(city)` via wttr.in (synced to `~/.config/opencode/mcp-weather/` by `install.sh`) |
+| `tool-voice-proxy/` | Zero-dependency Node bridge (port `:1981` → `:1977`): translates the AFM model's narrated `{"tool_call":[...]}` JSON into real OpenAI `tool_calls` (synced to `~/.config/opencode/tool-voice-proxy/` by `install.sh`; see its README for the daemon command + repair pipeline) |
 | `tui.json` | Theme, scroll and mouse defaults |
 | `opencode-mem.jsonc` | Seed for `opencode-mem` (auto-capture **off** until you add a backend — no placeholder-key errors) |
 | `acp.jsonc` | Seed for `opencode-acp` (context pruning) |
@@ -124,6 +125,31 @@ syncs `mcp-weather/` into `~/.config/opencode/` alongside
   information is unavailable at the moment." — no fabrication. Live-data path
   remains `/weather`, `/search`, and the weather MCP tool on tool-capable
   models (asu/Zen), all previously verified.
+
+## Session additions (2026-09-13, update 5: tool-voice-proxy + `afm-agent`)
+
+- **NEW `tool-voice-proxy/`** — zero-dependency Node bridge, port `:1981` →
+  `:1977` (fm-proxy). Injects a compact text-envelope protocol per turn and
+  translates the model's narrated `{"tool_call":[...]}` JSON into **real
+  OpenAI `tool_calls`** so opencode executes them. Includes an 8-step repair
+  pipeline (`repairStart`) for the weak model's sloppy JSON, with a tolerance
+  table: native array, `tool_calls` array, fenced JSON, `{"tool":…}`,
+  object-string form, sibling-key forms, bare-token repairs. Daemon:
+  `nohup node tool-voice-proxy.js >/tmp/tool-voice.log 2>&1 &` (PID on
+  record; full contract in `tool-voice-proxy/README.md`).
+- **`apple` provider now points at `:1981`** (`baseURL
+  http://127.0.0.1:1981/v1`); **`tool_call: false` REMOVED** from
+  `models.system` — it strips tools from every request, defeating the whole
+  point of offering tools so the model can emit an envelope.
+- **NEW `afm-agent`** (no prompt key, `tools: {"*": false, bash, webfetch,
+  weather_get_temperature}`) — the tool-voice-proxy consumer. `afm` / `afm-run`
+  untouched.
+- **Battery round-1 (self-tested via `opencode run --agent afm-agent`):**
+  weather auto-call **4/4 PASS** (real 86°F Tempe via the MCP weather tool, no
+  `/weather` needed — THE headline requirement); EXECMARKER bash side-effect
+  **3/5** (real file created on hits); file listing **0/3**; `2+2` **0/3**
+  (wrong tool choice + broken JSON). Iteration round 2 in progress — injection
+  v2 + repair extension targeting `ls`/math.
 
 ## Install
 
