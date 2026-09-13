@@ -12,7 +12,7 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 
 | Path | What |
 |---|---|
-| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm`), slash commands, plugin list, NanoGPT + Apple (fm-proxy) providers |
+| `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm` chat + `afm-run` runner), slash commands, plugin list, NanoGPT + Apple (fm-proxy) providers |
 | `tui.json` | Theme, scroll and mouse defaults |
 | `opencode-mem.jsonc` | Seed for `opencode-mem` (auto-capture **off** until you add a backend — no placeholder-key errors) |
 | `acp.jsonc` | Seed for `opencode-acp` (context pruning) |
@@ -59,6 +59,23 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 - **Default model** is now `opencode/muse-spark-1.3-contributor-free` (was
   `opencode/big-pickle`). Requires `opencode auth login` for Zen auth.
 - **Orchestrator guard** — `agent.orchestrator.permission.copilot_prompt: deny`.
+
+## Session additions (2026-09-13, update 2: `afm` split into chat + runner)
+
+- **`afm` reverted to zero tools** (`tools: {"*": false}`) with an honest
+  tool-free general-chat prompt — everyday Q&A answered from knowledge.
+- **New sibling `afm-run`** (model `apple/system`, bash-only tools,
+  **deliberately no custom prompt**) — the reliable shell runner.
+- **Why:** experiments proved ANY custom agent prompt breaks real tool
+  execution on `apple/system` — the model prints code fences instead of
+  emitting `tool_calls`. The custom prompt replaces opencode's default system
+  prompt (which carries the tool-use protocol) and the weak on-device model
+  can't recover it. Bash-only with no custom prompt executes reliably
+  (verified: `EXECMARKER-123` appears in both the tool-result event and the
+  reply via fm-proxy `:1977`).
+- **Caveats:** model prose summaries of tool output are loose (trust the
+  tool-result event, not the prose); `tool_choice: auto` never yields
+  `tool_calls` upstream; full toolsets overflow the 4096-token window.
 
 ## Install
 

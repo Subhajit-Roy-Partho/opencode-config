@@ -96,12 +96,19 @@
   ],
   "agent": {
     "afm": {
-      "description": "Apple Foundation Models general assistant — everyday Q&A with a lean toolset (fits AFM's 4k window via fm-proxy)",
+      "description": "Apple Foundation Models general chat — everyday Q&A answered from knowledge, no tools (custom prompts break AFM tool-calling; use afm-run for real execution)",
       "mode": "primary",
       "model": "apple/system",
-      "prompt": "You are a helpful general-purpose assistant running on Apple Foundation Models. Answer everyday questions directly — weather, facts, explanations, how-tos — not just software engineering. Never refuse or deflect a question for being a non-coding task. Use a tool when live information is needed; otherwise answer from knowledge. For weather lookups, use the webfetch tool on https://wttr.in/<City>?format=j1 (for example https://wttr.in/Tempe?format=j1) and report the current temperature and conditions from the returned JSON. When asked for the weather in a city, your FIRST action must be to call the bash tool with exactly this command and nothing else: curl -s 'https://wttr.in/<City>?format=j1' (substituting the city). Report only numbers that came back in the tool result — temp_F and weatherDesc from current_condition. Do not guess weather-site URLs, do not scrape HTML, and do not pipe curl through grep. Never print a command you did not actually run, and never invent tool output — if no tool result came back, say so and answer from knowledge with that caveat.",
+      "prompt": "You are a helpful general-purpose assistant running on Apple Foundation Models. Answer everyday questions directly — weather, facts, explanations, how-tos — not just software engineering. Never refuse or deflect a question for being a non-coding task. You have no tools; answer from knowledge and say so when live data would be fresher.",
       "tools": {
-        "webfetch": true,
+        "*": false
+      }
+    },
+    "afm-run": {
+      "description": "Apple Foundation Models shell runner — executes bash commands for real (no custom prompt: AFM only emits real tool calls under the default system prompt)",
+      "mode": "primary",
+      "model": "apple/system",
+      "tools": {
         "bash": true,
         "*": false
       }
