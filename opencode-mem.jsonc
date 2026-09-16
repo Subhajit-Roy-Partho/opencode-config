@@ -12,24 +12,30 @@
   // ============================================
   // Embedding Model (for similarity search)
   // ============================================
+  // Local = Hugging Face / ONNX via @huggingface/transformers (not Apple MLX).
+  // Remote = set BOTH embeddingApiUrl and embeddingApiKey (OpenAI-compatible /embeddings).
   
   // Default: Nomic Embed v1 (768 dimensions, 8192 context, multilingual)
   "embeddingModel": "Xenova/nomic-embed-text-v1",
+
+  // Opt-in Nomic task prefixes (search_document: / search_query:). After enabling,
+  // re-index existing memories so store and query vectors stay aligned.
+  // "embeddingUseTaskPrefixes": true,
   
   // Auto-detected dimensions (no need to set manually)
   // "embeddingDimensions": 768,
   
-  // Other recommended models:
+  // Other recommended local models:
   // "embeddingModel": "Xenova/jina-embeddings-v2-base-en",  // 768 dims, English-only, 8192 context
   // "embeddingModel": "Xenova/jina-embeddings-v2-small-en", // 512 dims, faster, 8192 context
   // "embeddingModel": "Xenova/all-MiniLM-L6-v2",            // 384 dims, very fast, 512 context
   // "embeddingModel": "Xenova/all-mpnet-base-v2",           // 768 dims, good quality, 512 context
   
-  // Optional: Use OpenAI-compatible API for embeddings
+  // Optional: OpenAI-compatible API for embeddings (both URL and key required)
   // "embeddingApiUrl": "https://api.openai.com/v1",
-  // "embeddingApiKey": "sk-...",
+  // "embeddingApiKey": "env://OPENAI_API_KEY",  // or "sk-..." / "file:///path/to/key"
   // "embeddingModel": "text-embedding-3-small",  // 1536 dims, auto-detected
-  
+ 
   // ============================================
   // Web Server Settings
   // ============================================
@@ -42,6 +48,13 @@
   
   // Host address for web UI (use 127.0.0.1 for local only, 0.0.0.0 for network access)
   "webServerHost": "127.0.0.1",
+
+  // Optional HTTP Basic Auth for the web UI. Accepts literal, env://, or file:// secrets.
+  // "webServerAuthPassword": "",
+  // "webServerAuthUsername": "",
+
+  // Required when webServerHost is not loopback. Protects /api/* with Bearer / X-Opencode-Mem-Token.
+  // "webServerApiToken": "env://OPENCODE_MEM_WEB_TOKEN",
   
   // ============================================
   // Database Settings
@@ -96,31 +109,25 @@
    // "opencodeModel": "claude-haiku-4-5-20251001",
 
    // ============================================
-   // Auto-Capture Settings (REQUIRES EXTERNAL API)
+   // Auto-Capture Settings
    // ============================================
   
-  // IMPORTANT: Auto-capture ONLY works with a working model backend.
-  // It runs in background without blocking your main session.
+  // IMPORTANT: Auto-capture only runs after either opencodeProvider/opencodeModel
+  // above is configured, or the manual fallback below is uncommented with real values.
+  // It runs in background without blocking your main session
   // Note: Ollama may not support tool calling. Use OpenAI, Anthropic, or Groq for best results.
-  //
-  // Default is OFF so a fresh clone never spams errors with the "sk-..." placeholder below.
-  // To enable, either:
-  //   1. (Recommended) use opencode's own auth — set "opencodeProvider" + "opencodeModel"
-  //      to a provider from `opencode providers list`, no API key needed; or
-  //   2. set all three of memoryModel + memoryApiUrl + memoryApiKey below,
-  //      then flip "autoCaptureEnabled" to true.
-  "autoCaptureEnabled": false,
   
-  // Provider type: "openai-chat" | "openai-responses" | "anthropic"
+  "autoCaptureEnabled": true,
+  
+  // Provider type: "openai-chat" | "openai-responses" | "anthropic" | "minimax" | "orcarouter"
   // Note: "openai-chat" is a generic OpenAI API-compatible mode.
   // Any service that follows the OpenAI Chat Completions API can use it via custom "memoryApiUrl".
   "memoryProvider": "openai-chat",
   
-  // REQUIRED for auto-capture (all 3 must be set) — ignored while autoCaptureEnabled is false.
-  // Prefer "env://VAR_NAME" over pasting keys into this file.
-  "memoryModel": "gpt-4o-mini",
-  "memoryApiUrl": "https://api.openai.com/v1",
-  "memoryApiKey": "env://OPENAI_API_KEY",
+  // Manual fallback. Uncomment all 3 lines and replace memoryApiKey before use:
+  // "memoryModel": "gpt-4o-mini",
+  // "memoryApiUrl": "https://api.openai.com/v1",
+  // "memoryApiKey": "sk-...",
 
   // API Key Formats:
   // Direct value:        "sk-..."
@@ -155,14 +162,32 @@
   //   "memoryModel": "claude-3-5-haiku-20241022"
   //   "memoryApiUrl": "https://api.anthropic.com/v1"
   //   "memoryApiKey": "sk-ant-..."
-  
+
+  // MiniMax (Anthropic Messages-compatible endpoint, with session support):
+  //   "memoryProvider": "minimax"
+  //   "memoryModel": "MiniMax-M3"
+  //   "memoryApiUrl": "https://api.minimax.io"        // global endpoint
+  //   "memoryApiKey": "<MiniMax API key>"
+  //   // China endpoint: "memoryApiUrl": "https://api.minimaxi.com"
+  //   // Optional adaptive thinking for MiniMax-M3:
+  //   "memoryExtraParams": { "thinking": { "type": "adaptive" } }
+
+  // OrcaRouter (OpenAI-compatible gateway, namespaced model IDs, with session support):
+  //   "memoryProvider": "orcarouter"
+  //   "memoryApiKey": "<OrcaRouter API key>"
+  //   // memoryApiUrl and memoryModel are optional — they default to
+  //   // https://api.orcarouter.ai/v1 and "orcarouter/auto" (a routing alias).
+  //   // OrcaRouter rejects bare model names, so if you set memoryModel, use a
+  //   // namespaced ID such as "openai/gpt-5.5" or "deepseek/deepseek-v4-flash".
+  //   "memoryModel": "openai/gpt-5.5"
+
   // Groq (OpenAI-compatible, use openai-chat provider):
   //   "memoryProvider": "openai-chat"
   //   "memoryModel": "llama-3.3-70b-versatile"
   //   "memoryApiUrl": "https://api.groq.com/openai/v1"
   //   "memoryApiKey": "gsk_..."
   
-  // Maximum iterations for multi-turn AI analysis (for openai-responses and anthropic)
+  // Maximum iterations for multi-turn AI analysis (for openai-responses, anthropic, and minimax)
   "autoCaptureMaxIterations": 5,
    
   // Timeout per iteration in milliseconds (30 seconds default)
@@ -170,6 +195,11 @@
 
   // Maximum number of times to retry capturing a prompt if it fails (due to network, API errors, etc.)
   "autoCaptureMaxRetries": 3,
+
+  // Maximum UTF-8 bytes for the auto-capture markdown context sent to the summary model.
+  // Prevents HTTP 400 context overflows on models with ~131K token windows (e.g. Groq Llama).
+  // Rough guide: tokens ≈ bytes / 4 for mixed code/prose.
+  "autoCaptureMaxContextBytes": 131072,
    
   // Days to keep AI session history before cleanup
   "aiSessionRetentionDays": 7,
@@ -213,18 +243,28 @@
   // - User workflows (development habits, sequences, learning style)
   // - Skill level (overall and per-domain assessment)
   "userProfileAnalysisInterval": 10,
+
+  // Days before inactive items (all types) are eligible for removal
+  "userProfileStaleDays": 2,
+
+  // Number of preferences shown in UI
+  "userProfileDisplayPreferences": 20,
   
-  // Maximum number of preferences to keep in user profile (sorted by confidence)
-  // Preferences are things like "prefers code without comments", "likes concise responses"
-  "userProfileMaxPreferences": 20,
+  // Number of patterns shown in UI
+  "userProfileDisplayPatterns": 15,
   
-  // Maximum number of patterns to keep in user profile (sorted by frequency)
-  // Patterns are recurring topics like "often asks about database optimization"
-  "userProfileMaxPatterns": 15,
+  // Number of workflows shown in UI
+  "userProfileDisplayWorkflows": 10,
   
-  // Maximum number of workflows to keep in user profile (sorted by frequency)
-  // Workflows are sequences like "usually asks for tests after implementation"
-  "userProfileMaxWorkflows": 10,
+  // Number of preferences injected into LLM conversation context
+  // Keep this small — the strongest signals are enough; more dilute LLM attention
+  "userProfileInjectPreferences": 5,
+  
+  // Number of patterns injected into LLM conversation context
+  "userProfileInjectPatterns": 5,
+  
+  // Number of workflows injected into LLM conversation context
+  "userProfileInjectWorkflows": 3,
   
   // Days before preference confidence starts to decay (if not reinforced)
   // Preferences that aren't seen again will gradually lose confidence and be removed
@@ -233,7 +273,21 @@
   // Number of profile versions to keep in changelog (for rollback/debugging)
   // Older versions are automatically cleaned up
   "userProfileChangelogRetentionCount": 5,
-  
+
+  // Minimum evidence count for a preference/pattern to survive confidence decay
+  // Items confirmed fewer times are more likely to be pruned when confidence decays
+  "userProfileMinEvidenceForRetention": 3,
+
+  // Periodically merge duplicate or irrelevant profile items with the configured AI provider
+  "userProfileAutoCleanupEnabled": true,
+  // Number of analyzed user prompts between automatic AI cleanup runs
+  "userProfileAutoCleanupInterval": 100,
+
+  // Enable LLM validation of existing preferences against recent behavior.
+  // When enabled, each analysis round checks if top-5 preferences still match recent prompts.
+  // Experimental — disabled by default.
+  "userProfileValidationEnabled": false,
+
   // ============================================
   // Search Settings
   // ============================================

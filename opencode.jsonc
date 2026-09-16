@@ -1,9 +1,343 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "autoupdate": "notify",
-  // Default model is a free contributor model on opencode Zen (https://opencode.ai/zen) —
-  // run `opencode auth login` first so Zen auth is available.
+  "provider": {
+    // opencode Zen (Console) lane — Muse Spark 1.3 contributor-free.
+    // Stop requesting `reasoning.encrypted_content`: the Zen gateway proxies the
+    // Responses lane to Meta and mints the encrypted blob bound to the gateway's
+    // own caller, so opencode's replay on the next turn is rejected with
+    // "reasoning `encrypted_content` was not issued to this caller".
+    // Community-verified fix (opencode issue #48805); no release fixes it yet.
+    "opencode": {
+      "models": {
+        "muse-spark-1.3-contributor-free": {
+          "options": {
+            "include": []
+          }
+        }
+      }
+    },
+    "asu": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "ASU Air",
+      "env": [
+        "ASU_API_KEY"
+      ],
+      "options": {
+        "baseURL": "https://openai.rc.asu.edu/v1"
+      },
+      "models": {
+        "chatterbox": {
+          "name": "chatterbox"
+        },
+        "devstral2-123b": {
+          "name": "devstral2-123b"
+        },
+        "flux-2": {
+          "name": "flux-2"
+        },
+        "gemma3-27b-it": {
+          "name": "gemma3-27b-it"
+        },
+        "gemma4-31b-it": {
+          "name": "gemma4-31b-it"
+        },
+        "glm-4-5v": {
+          "name": "glm-4-5v"
+        },
+        "glm-5-2": {
+          "name": "glm-5-2"
+        },
+        "glm-5-3": {
+          "name": "glm-5-3"
+        },
+        "glm-5-3-flash": {
+          "name": "glm-5-3-flash"
+        },
+        "gpt-oss-120b": {
+          "name": "gpt-oss-120b"
+        },
+        "granite41-30b": {
+          "name": "granite41-30b"
+        },
+        "inkling-small": {
+          "name": "inkling-small"
+        },
+        "kimi-k2-7-code": {
+          "name": "kimi-k2-7-code"
+        },
+        "laguna-s-2-1": {
+          "name": "laguna-s-2-1"
+        },
+        "llama3-groq-70b-tool-use": {
+          "name": "llama3-groq-70b-tool-use"
+        },
+        "llama4-maverick-17b": {
+          "name": "llama4-maverick-17b"
+        },
+        "llama4-scout-17b": {
+          "name": "llama4-scout-17b"
+        },
+        "minimax-m2-7": {
+          "name": "minimax-m2-7"
+        },
+        "minimax-m3": {
+          "name": "minimax-m3"
+        },
+        "muse-glimmer-30b": {
+          "name": "muse-glimmer-30b"
+        },
+        "north-mini-code": {
+          "name": "north-mini-code"
+        },
+        "olmo3-32b-instruct": {
+          "name": "olmo3-32b-instruct"
+        },
+        "olmo3-32b-think": {
+          "name": "olmo3-32b-think"
+        },
+        "olmo3-7b-instruct": {
+          "name": "olmo3-7b-instruct"
+        },
+        "olmo3-7b-think": {
+          "name": "olmo3-7b-think"
+        },
+        "ornith-1-0-35b": {
+          "name": "ornith-1-0-35b"
+        },
+        "qwen-agentworld-35b-a3b": {
+          "name": "qwen-agentworld-35b-a3b"
+        },
+        "qwen3-235b-a22b-instruct-2507": {
+          "name": "qwen3-235b-a22b-instruct-2507"
+        },
+        "qwen3-235b-a22b-thinking-2507": {
+          "name": "qwen3-235b-a22b-thinking-2507"
+        },
+        "qwen3-30b-a3b-instruct-2507": {
+          "name": "qwen3-30b-a3b-instruct-2507"
+        },
+        "qwen3-30b-a3b-thinking-2507": {
+          "name": "qwen3-30b-a3b-thinking-2507"
+        },
+        "qwen3-asr-1p7b": {
+          "name": "qwen3-asr-1p7b"
+        },
+        "qwen3-coder-30b-a3b-instruct": {
+          "name": "qwen3-coder-30b-a3b-instruct"
+        },
+        "qwen3-coder-next": {
+          "name": "qwen3-coder-next"
+        },
+        "qwen3-embedding-4b": {
+          "name": "qwen3-embedding-4b"
+        },
+        "qwen3-embedding-8b": {
+          "name": "qwen3-embedding-8b"
+        },
+        "qwen3-tts-customvoice-1p7b": {
+          "name": "qwen3-tts-customvoice-1p7b"
+        },
+        "qwen3-vl-32b-instruct": {
+          "name": "qwen3-vl-32b-instruct"
+        },
+        "qwen3-vl-32b-thinking": {
+          "name": "qwen3-vl-32b-thinking"
+        },
+        "qwen3-vl-embedding-8b": {
+          "name": "qwen3-vl-embedding-8b"
+        },
+        "qwen35-122b-a10b": {
+          "name": "qwen35-122b-a10b"
+        },
+        "qwen35-27b": {
+          "name": "qwen35-27b"
+        },
+        "qwen35-35b-a3b": {
+          "name": "qwen35-35b-a3b"
+        },
+        "qwen36-27b": {
+          "name": "qwen36-27b"
+        },
+        "qwen36-35b-a3b": {
+          "name": "qwen36-35b-a3b"
+        },
+        "qwen38-27b": {
+          "name": "qwen38-27b"
+        },
+        "wan-2-2": {
+          "name": "wan-2-2"
+        },
+        "whisper-large-v3": {
+          "name": "whisper-large-v3"
+        }
+      }
+    },
+    "nano-gpt": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "NanoGPT",
+      "options": {
+        "baseURL": "https://nano-gpt.com/api/v1"
+      },
+      "models": {
+        "claude-opus-4-5-20251101": {
+          "name": "Claude 4.5 Opus",
+          "limit": {
+            "context": 200000,
+            "output": 32000
+          }
+        },
+        "claude-sonnet-4-5-20250929": {
+          "name": "Claude Sonnet 4.5",
+          "limit": {
+            "context": 1000000,
+            "output": 64000
+          }
+        },
+        "openai/gpt-5.2": {
+          "name": "GPT 5.2",
+          "limit": {
+            "context": 128000,
+            "output": 128000
+          }
+        },
+        "deepseek/deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          }
+        },
+        "deepseek/deepseek-v4-pro:thinking": {
+          "name": "DeepSeek V4 Pro Thinking",
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          }
+        },
+        "deepseek/deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          }
+        },
+        "deepseek/deepseek-v4-flash:thinking": {
+          "name": "DeepSeek V4 Flash Thinking",
+          "limit": {
+            "context": 1048576,
+            "output": 384000
+          }
+        },
+        "google/gemini-3-flash-preview": {
+          "name": "Gemini 3 Flash (Preview)",
+          "limit": {
+            "context": 1048756,
+            "output": 65536
+          }
+        },
+        "gemini-3-pro-preview": {
+          "name": "Gemini 3 Pro",
+          "limit": {
+            "context": 1048756,
+            "output": 65536
+          }
+        },
+        "zai-org/glm-4.7": {
+          "name": "GLM 4.7",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-4.7:thinking": {
+          "name": "GLM 4.7 Thinking",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-5": {
+          "name": "GLM 5",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-5:thinking": {
+          "name": "GLM 5 Thinking",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-5.1": {
+          "name": "GLM 5.1",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-5.1:thinking": {
+          "name": "GLM 5.1 Thinking",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-5.2": {
+          "name": "GLM 5.2",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "zai-org/glm-5.2:thinking": {
+          "name": "GLM 5.2 Thinking",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "TEE/glm-5.2": {
+          "name": "GLM 5.2 (TEE)",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "TEE/kimi-k2.6": {
+          "name": "Kimi K2.6",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "moonshotai/kimi-k2.6": {
+          "name": "Kimi K2.6 (Moonshot)",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "moonshotai/kimi-k2.6:thinking": {
+          "name": "Kimi K2.6 Thinking",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        },
+        "moonshotai/kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code",
+          "limit": {
+            "context": 200000,
+            "output": 65535
+          }
+        }
+      }
+    }
+  },
   "model": "opencode/muse-spark-1.3-contributor-free",
+  "autoupdate": "notify",
   "permission": "allow",
   "share": "manual",
   "snapshot": false,
@@ -31,100 +365,126 @@
   "experimental": {
     "mcp_timeout": 20000
   },
-  // ACP (Active Context Pruning) handles context management — disable built-in compaction
   "compaction": {
     "auto": false,
     "prune": true,
     "reserved": 10000
   },
-  // LSPs: built-ins auto-load per-file-type, only spin up when you open a matching file
   "lsp": {
-    // ── disable all built-ins you don't use ──
-    "zls":              { "disabled": true },
-    "yaml-ls":          { "disabled": true },
-    "vue":              { "disabled": true },
-    "tinymist":         { "disabled": true },
-    "texlab":           { "disabled": true },
-    "terraform":        { "disabled": true },
-    "svelte":           { "disabled": true },
-    "sourcekit-lsp":    { "disabled": true },
-    "rust":             { "disabled": true },
-    "ruby-lsp":         { "disabled": true },
-    "razor":            { "disabled": true },
-    "prisma":           { "disabled": true },
-    "php intelephense": { "disabled": true },
-    "oxlint":           { "disabled": true },
-    "ocaml-lsp":        { "disabled": true },
-    "nixd":             { "disabled": true },
-    "lua-ls":           { "disabled": true },
-    "kotlin-ls":        { "disabled": true },
-    "julials":          { "disabled": true },
-    "jdtls":            { "disabled": true },
-    "hls":                 { "disabled": true },
-    "gopls":            { "disabled": true },
-    "gleam":            { "disabled": true },
-    "fsharp":           { "disabled": true },
-    "elixir-ls":        { "disabled": true },
-    "dockerfile":       { "disabled": true },
-    "deno":             { "disabled": true },
-    "dart":             { "disabled": true },
-    "clojure-lsp":      { "disabled": true },
-    "csharp":           { "disabled": true },
-    "biome":            { "disabled": true },
-    "astro":            { "disabled": true },
-    // ── keep: pyright (Python), clangd (C/C++), bash, typescript, eslint, html/css/json ──
+    "zls": {
+      "disabled": true
+    },
+    "yaml-ls": {
+      "disabled": true
+    },
+    "vue": {
+      "disabled": true
+    },
+    "tinymist": {
+      "disabled": true
+    },
+    "texlab": {
+      "disabled": true
+    },
+    "terraform": {
+      "disabled": true
+    },
+    "svelte": {
+      "disabled": true
+    },
+    "sourcekit-lsp": {
+      "disabled": true
+    },
+    "rust": {
+      "disabled": true
+    },
+    "ruby-lsp": {
+      "disabled": true
+    },
+    "razor": {
+      "disabled": true
+    },
+    "prisma": {
+      "disabled": true
+    },
+    "php intelephense": {
+      "disabled": true
+    },
+    "oxlint": {
+      "disabled": true
+    },
+    "ocaml-lsp": {
+      "disabled": true
+    },
+    "nixd": {
+      "disabled": true
+    },
+    "lua-ls": {
+      "disabled": true
+    },
+    "kotlin-ls": {
+      "disabled": true
+    },
+    "julials": {
+      "disabled": true
+    },
+    "jdtls": {
+      "disabled": true
+    },
+    "hls": {
+      "disabled": true
+    },
+    "gopls": {
+      "disabled": true
+    },
+    "gleam": {
+      "disabled": true
+    },
+    "fsharp": {
+      "disabled": true
+    },
+    "elixir-ls": {
+      "disabled": true
+    },
+    "dockerfile": {
+      "disabled": true
+    },
+    "deno": {
+      "disabled": true
+    },
+    "dart": {
+      "disabled": true
+    },
+    "clojure-lsp": {
+      "disabled": true
+    },
+    "csharp": {
+      "disabled": true
+    },
+    "biome": {
+      "disabled": true
+    },
+    "astro": {
+      "disabled": true
+    }
   },
   "plugin": [
     "./plugins/onnx-fix.js",
-    // Memory & context management
     "opencode-supermemory",
     "opencode-mem",
     "opencode-working-memory",
     "opencode-acp",
-    // Agent orchestration & functionality
     "oh-my-opencode-slim",
-    // Utilities
     "opencode-pty",
     "opencode-copilot-plugin",
     "opencode-notify",
     "opencode-snip",
-    // Local plugins
     "./plugins/env-protection.js",
     "./plugins/memory-compaction.js",
     "./plugins/notification.js",
     "./plugins/shell-strategy.js"
   ],
   "agent": {
-    "afm": {
-      "description": "Apple Foundation Models general chat — everyday Q&A answered from knowledge, no tools (custom prompts break AFM tool-calling; use afm-run for real execution)",
-      "mode": "primary",
-      "model": "apple/system",
-      "prompt": "You are a helpful general-purpose assistant running on Apple Foundation Models. Answer everyday questions directly — weather, facts, explanations, how-tos — not just software engineering. Never refuse or deflect a question for being a non-coding task. You have no tools; answer from knowledge and say so when live data would be fresher. Never invent tool output, numbers, JSON, or city data — if you did not retrieve it, say plainly it is unavailable instead of guessing.",
-      "tools": {
-        "*": false
-      }
-    },
-    "afm-run": {
-      "description": "Apple Foundation Models shell runner — executes bash commands for real (no custom prompt: AFM only emits real tool calls under the default system prompt)",
-      "mode": "primary",
-      "model": "apple/system",
-      "tools": {
-        "bash": true,
-        "weather_*": true,
-        "*": false
-      }
-    },
-    "afm-agent": {
-      "description": "Apple Foundation Models via tool-voice-proxy — narrated JSON envelopes translated into real tool calls (bash/webfetch/weather MCP)",
-      "mode": "primary",
-      "model": "apple/system",
-      "tools": {
-        "*": false,
-        "bash": true,
-        "webfetch": true,
-        "weather_get_temperature": true
-      }
-    },
     "orchestrator": {
       "permission": {
         "copilot_prompt": "deny"
@@ -163,125 +523,6 @@
       "prompt": "You are a visual analysis expert. Analyze images, screenshots, diagrams, UI mockups, and other visual content in detail. Identify code, UI patterns, errors, architecture diagrams, or data in the image. Connect visual observations to the codebase and provide actionable insights or code changes."
     }
   },
-  "provider": {
-    // Apple Foundation Models via tool-voice-proxy (sibling repo
-    // Documents/Github/tool-voice-proxy) → fm-proxy (:1977) → fm serve.
-    // The tool-voice-proxy daemon must be running: it translates the model's
-    // narrated {"tool_call":[...]} JSON into real OpenAI tool_calls at :1981.
-    "apple": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Apple Foundation Models",
-      "options": {
-        "baseURL": "http://127.0.0.1:1981/v1"
-      },
-      "models": {
-        "system": {
-          "name": "Apple Foundation Model",
-          "limit": {
-            "context": 4096,
-            "output": 2048
-          }
-        }
-      }
-    },
-    "nano-gpt": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "NanoGPT",
-      "options": {
-        "baseURL": "https://nano-gpt.com/api/v1"
-      },
-      "models": {
-        "claude-opus-4-5-20251101": {
-          "name": "Claude 4.5 Opus",
-          "limit": { "context": 200000, "output": 32000 }
-        },
-        "claude-sonnet-4-5-20250929": {
-          "name": "Claude Sonnet 4.5",
-          "limit": { "context": 1000000, "output": 64000 }
-        },
-        "openai/gpt-5.2": {
-          "name": "GPT 5.2",
-          "limit": { "context": 128000, "output": 128000 }
-        },
-        "deepseek/deepseek-v4-pro": {
-          "name": "DeepSeek V4 Pro",
-          "limit": { "context": 1048576, "output": 384000 }
-        },
-        "deepseek/deepseek-v4-pro:thinking": {
-          "name": "DeepSeek V4 Pro Thinking",
-          "limit": { "context": 1048576, "output": 384000 }
-        },
-        "deepseek/deepseek-v4-flash": {
-          "name": "DeepSeek V4 Flash",
-          "limit": { "context": 1048576, "output": 384000 }
-        },
-        "deepseek/deepseek-v4-flash:thinking": {
-          "name": "DeepSeek V4 Flash Thinking",
-          "limit": { "context": 1048576, "output": 384000 }
-        },
-        "google/gemini-3-flash-preview": {
-          "name": "Gemini 3 Flash (Preview)",
-          "limit": { "context": 1048756, "output": 65536 }
-        },
-        "gemini-3-pro-preview": {
-          "name": "Gemini 3 Pro",
-          "limit": { "context": 1048756, "output": 65536 }
-        },
-        "zai-org/glm-4.7": {
-          "name": "GLM 4.7",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-4.7:thinking": {
-          "name": "GLM 4.7 Thinking",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-5": {
-          "name": "GLM 5",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-5:thinking": {
-          "name": "GLM 5 Thinking",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-5.1": {
-          "name": "GLM 5.1",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-5.1:thinking": {
-          "name": "GLM 5.1 Thinking",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-5.2": {
-          "name": "GLM 5.2",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "zai-org/glm-5.2:thinking": {
-          "name": "GLM 5.2 Thinking",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "TEE/glm-5.2": {
-          "name": "GLM 5.2 (TEE)",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "TEE/kimi-k2.6": {
-          "name": "Kimi K2.6",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "moonshotai/kimi-k2.6": {
-          "name": "Kimi K2.6 (Moonshot)",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "moonshotai/kimi-k2.6:thinking": {
-          "name": "Kimi K2.6 Thinking",
-          "limit": { "context": 200000, "output": 65535 }
-        },
-        "moonshotai/kimi-k2.7-code": {
-          "name": "Kimi K2.7 Code",
-          "limit": { "context": 200000, "output": 65535 }
-        }
-      }
-    }
-  },
   "mcp": {
     "weather": {
       "type": "local",
@@ -295,6 +536,35 @@
       "type": "remote",
       "url": "https://connect.composio.dev/mcp",
       "enabled": false
+    },
+    "computer-use": {
+      "type": "local",
+      "command": [
+        "npx",
+        "--yes",
+        "--prefer-offline",
+        "@zavora-ai/computer-use-mcp"
+      ],
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--caps=devtools"
+      ],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ],
+      "enabled": true
     }
   },
   "command": {
@@ -305,14 +575,6 @@
     "test": {
       "template": "Run the full test suite and analyze any failures. Focus on the failing tests, identify root causes, and suggest fixes.",
       "description": "Run tests and fix failures"
-    },
-    "weather": {
-      "template": "Use the bash tool to run exactly this command and nothing else: curl -s --max-time 20 'https://wttr.in/$ARGUMENTS?format=%l:+%c+%t+humidity+%h+wind+%w' — then report the result exactly as returned.",
-      "description": "Live temperature and conditions for a city (needs a tool-capable model)"
-    },
-    "search": {
-      "template": "Use the bash tool to run exactly this command and nothing else: curl -s --max-time 20 -A 'Mozilla/5.0' 'https://lite.duckduckgo.com/lite/?q=$ARGUMENTS' | python3 -c \"import sys,html,re; t=re.sub('<[^>]+>',' ',sys.stdin.read()); print(html.unescape(re.sub(r'\\s+',' ',t))))\" | head -c 2000 — then summarize the results in your own words.",
-      "description": "Web search via DuckDuckGo Lite (needs a tool-capable model)"
     },
     "plan": {
       "template": "Analyze the following request and create a detailed step-by-step implementation plan: $ARGUMENTS\n\nBreak it into phases with clear deliverables for each phase. Consider dependencies between phases.",
