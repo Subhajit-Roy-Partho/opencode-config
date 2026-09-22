@@ -19,11 +19,10 @@ git clone git@github.com:Subhajit-Roy-Partho/opencode-config.git ~/.config/openc
 cd ~/.config/opencode
 git checkout v2
 
-# 3. Install plugin dependencies (package.json is gitignored by design —
-#    it describes machine-local install state, so install explicitly)
-npm install
+# 3. Install plugin dependencies (pinned in package.json + lockfiles,
+#    tracked on the v2 branch so a fresh PC reproduces this exact install)
+npm ci
 # Expected: @opencode-ai/plugin, oh-my-opencode-slim, opencode-supermemory.
-# (opencode also self-resolves npm plugins into ~/.cache/opencode at startup.)
 
 # 4. Log in to providers (Zen / Go / Copilot are now built in — no plugin needed)
 opencode auth login        # pick your providers interactively
@@ -130,7 +129,7 @@ and must never be committed.
 - `plugins/*.js` — local v2 plugins (tracked).
 - `cli.json` — v2 TUI config (`$schema: …/v2/cli.json`; untracked, machine-local).
 - `tui.json` — legacy TUI config (tracked, left for v1 branches).
-- `package.json` / `package-lock.json` / `bun.lock` — **gitignored by repo
-  policy** (machine-local install state); fresh PCs reinstall via `npm install`
-  per this README.
+- `package.json` / `package-lock.json` / `bun.lock` — **tracked on the v2
+  branch** (force-added over the repo `.gitignore`, which still ignores them on
+  v1 branches); fresh PCs reproduce the exact install with `npm ci`.
 - `service.json`, `*.bak`, `.oh-my-opencode-slim/`, `node_modules/` — never commit.
