@@ -1,34 +1,20 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  // opencode v2 file shape: singular keys (plugin/agent/provider/command/permission,
+  // flat mcp, npm+options) are canonical per the published schema. The plural
+  // forms (plugins/agents/providers/...) appear only in `opencode debug config`
+  // resolved output — do NOT rename file keys to plural, the schema rejects them.
   "autoupdate": true,
   // Big Pickle is a free stealth model on opencode Zen (https://opencode.ai/zen)
   "model": "opencode/big-pickle",
   "permission": "allow",
   "share": "manual",
   "compaction": {
-    "auto": true,
-    "prune": true,
-    "reserved": 10000
-  },
-  "lsp": {
-    "pyright": {
-      "command": ["pyright-langserver", "--stdio"],
-      "extensions": [".py"]
-    },
-    "clangd": {
-      "command": ["clangd"],
-      "extensions": [".cpp", ".c", ".h", ".hpp"]
-    }
+    "auto": true
   },
   "plugin": [
-    "opencode-supermemory",
+    "./plugins/supermemory-bridge.js",
     "oh-my-opencode-slim",
-    "opencode-pty",
-    "opencode-copilot-plugin",
-    "opencode-notify",
-    "opencode-mem",
-    // reduces shell output token usage by 60-90% by filtering before it hits the LLM
-    "opencode-snip",
     "./plugins/env-protection.js",
     "./plugins/memory-compaction.js",
     "./plugins/notification.js",
@@ -38,7 +24,7 @@
   "agent": {
     "code-reviewer": {
       "description": "Reviews code for best practices, security, performance, and maintainability",
-      "model": "{env:OPENCODE_MODEL}",
+      "model": "opencode-go/muse-spark-1.3-contributor",
       "prompt": "You are a senior code reviewer. Focus on security vulnerabilities, performance bottlenecks, maintainability, and adherence to best practices. Provide actionable feedback with specific line references. Rate severity of each issue as critical, warning, or suggestion.",
       "permission": {
         "edit": "deny"
@@ -46,7 +32,7 @@
     },
     "architect": {
       "description": "Designs system architecture and creates implementation plans",
-      "model": "{env:OPENCODE_MODEL}",
+      "model": "opencode-go/muse-spark-1.3-contributor",
       "prompt": "You are a software architect. Analyze requirements, design system architecture, define data models, API contracts, and create step-by-step implementation plans. Always consider scalability, maintainability, and trade-offs. Output structured plans with clear phases.",
       "permission": {
         "edit": "deny",
@@ -55,18 +41,38 @@
     },
     "test-writer": {
       "description": "Writes comprehensive tests for existing and new code",
-      "model": "{env:OPENCODE_MODEL}",
+      "model": "opencode-go/muse-spark-1.3-contributor",
       "prompt": "You are a test engineer. Write comprehensive tests covering happy paths, edge cases, error handling, and boundary conditions. Follow the project's existing test patterns and conventions. Aim for high coverage but prioritize meaningful assertions over line coverage."
     },
     "debugger": {
       "description": "Debugs issues by analyzing code, logs, and error traces",
-      "model": "{env:OPENCODE_MODEL}",
+      "model": "opencode-go/muse-spark-1.3-contributor",
       "prompt": "You are a debugging specialist. Systematically trace issues from error messages through the call stack. Identify root causes, not symptoms. Suggest minimal fixes and explain why the bug occurred. Verify your hypothesis before suggesting fixes."
     },
     "vision": {
-      "description": "Analyzes images, screenshots, diagrams, and visual content using Kimi K2.6 vision",
-      "model": "opencode-go/kimi-k2.6",
+      "description": "Analyzes images, screenshots, diagrams, and visual content using Muse Spark vision",
+      "model": "opencode/muse-spark-1.3-contributor-free",
       "prompt": "You are a visual analysis expert. Analyze images, screenshots, diagrams, UI mockups, and other visual content in detail. Identify code, UI patterns, errors, architecture diagrams, or data in the image. Connect visual observations to the codebase and provide actionable insights or code changes."
+    },
+    // Lane agents (oh-my-opencode-slim): per-task model selection.
+    // - vision stays on Muse Spark 1.3 contributor-free (Zen): explicit choice.
+    // - every other lane runs Muse Spark 1.3 contributor on Go
+    //   (opencode-go/muse-spark-1.3-contributor).
+    // Bare {model} entries deep-merge over the plugin's agent definitions.
+    "explorer": {
+      "model": "opencode-go/muse-spark-1.3-contributor"
+    },
+    "fixer": {
+      "model": "opencode-go/muse-spark-1.3-contributor"
+    },
+    "librarian": {
+      "model": "opencode-go/muse-spark-1.3-contributor"
+    },
+    "oracle": {
+      "model": "opencode-go/muse-spark-1.3-contributor"
+    },
+    "designer": {
+      "model": "opencode-go/muse-spark-1.3-contributor"
     }
   },
   "provider": {
@@ -173,6 +179,22 @@
       "type": "remote",
       "url": "https://connect.composio.dev/mcp",
       "enabled": true
+    },
+    // Free, keyless paper/docs servers (fetched on first use via bunx/npx)
+    "arxiv": {
+      "type": "local",
+      "command": ["bunx", "@cyanheads/arxiv-mcp-server"],
+      "enabled": true
+    },
+    "openalex": {
+      "type": "local",
+      "command": ["bunx", "@cyanheads/openalex-mcp-server"],
+      "enabled": true
+    },
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "enabled": true
     }
   },
   "command": {
@@ -212,7 +234,7 @@
     },
     "vision": {
       "template": "Analyze the attached image(s) and: $ARGUMENTS",
-      "description": "Analyze images or screenshots with Kimi K2.6 vision",
+      "description": "Analyze images or screenshots with Muse Spark vision",
       "agent": "vision"
     }
   }
