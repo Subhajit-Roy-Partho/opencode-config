@@ -7,7 +7,8 @@
 #   libkey_lookup.sh --pmid 12345678
 #
 # Env (never commit values — export in your shell only):
-#   LIBKEY_ID   numeric ASU Library ID from https://thirdiron.com/api-request
+#   LIBKEY_ID   numeric library ID (default 158 = ASU, verified)
+#   LIBKEY_KEY  API key from https://thirdiron.com/api-request (or LIBKEY_API_KEY)
 #   LIBKEY_KEY  (actually LIBKEY_API_KEY) API key from the same request
 #               (accepted under either name; LIBKEY_KEY takes precedence)
 #
@@ -34,12 +35,16 @@ done
 [ -n "$ID_VAL" ] || usage
 
 # Accept LIBKEY_KEY (primary) or LIBKEY_API_KEY (alias); never print values.
-LIBKEY_ID="${LIBKEY_ID:-}"
+# ASU numeric Library ID is 158 (verified: ASU libguide links
+# browzine.com/libraries/158 as "BrowZine at ASU Library", and the rendered
+# libkey.io/libraries/158/<doi> page reads "Access Provided By Arizona
+# State University Library"). Override via env only if it ever changes.
+LIBKEY_ID="${LIBKEY_ID:-158}"
 API_KEY="${LIBKEY_KEY:-${LIBKEY_API_KEY:-}}"
 
 wayfless_fallback() {
   # $1 = human-readable reason (one line)
-  local lib="${LIBKEY_ID:-ASU_ID_TODO}"
+  local lib="${LIBKEY_ID:-158}"
   echo "fallback: https://libkey.io/libraries/${lib}/${ID_VAL}"
   echo "note: $1"
 }
@@ -52,7 +57,7 @@ for cmd in curl jq; do
 done
 
 if [ -z "$LIBKEY_ID" ] || [ -z "$API_KEY" ]; then
-  wayfless_fallback "LIBKEY_ID/LIBKEY_KEY are unset (expected until ASU credentials arrive); using keyless WAYFless link."
+  wayfless_fallback "LIBKEY_KEY is unset (request at https://thirdiron.com/api-request); using keyless WAYFless link for ASU (library 158)."
   exit 0
 fi
 

@@ -80,7 +80,7 @@ Only vars verified below are documented; anything else is marked unverified.
 | `OPENCODE_CONFIG_DIR` / `OPENCODE_LOG_DIR` / `OPENCODE_TUI_CONFIG` | Yes — referenced in slim dist (consumed by opencode host) | Override config dir, log dir, TUI config path. |
 | NanoGPT API key for the `nano-gpt` provider | **Unverified** — no key is stored in this repo; set whatever `https://nano-gpt.com` docs say (no `apiKey` in `provider.options` by design) | Authenticates the custom NanoGPT provider. |
 | Composio credentials | **Unverified** — remote MCP, browser login required (currently 401) | Authenticates the Composio MCP server. |
-| `LIBKEY_ID` / `LIBKEY_KEY` (`LIBKEY_API_KEY` alias) | **Unset (expected)** — request at https://thirdiron.com/api-request; script falls back to keyless WAYFless links until set | ASU numeric Library ID + API key for `libkey/libkey_lookup.sh`. |
+| `LIBKEY_ID` / `LIBKEY_KEY` (`LIBKEY_API_KEY` alias) | `LIBKEY_ID` defaults to **158 (ASU, verified)**; `LIBKEY_KEY` unset — request at https://thirdiron.com/api-request; script falls back to keyless WAYFless links until set | ASU API key for `libkey/libkey_lookup.sh`. |
 
 No API keys are stored in this repo. `service.json` (if present) is local-only
 and must never be committed.
@@ -127,12 +127,15 @@ built-in `webfetch`/`websearch`; never treat the fallback as an error.
   (bash + curl + jq; `chmod +x` already set). Prints title, bestLink,
   recommendedLinkText, openAccess, retraction / expression-of-concern flags,
   and browzineWebLink on success.
-- Credentials (terminal-settable, never committed): `LIBKEY_ID` = ASU numeric
-  Library ID, `LIBKEY_KEY` (alias `LIBKEY_API_KEY`) = API key — request both
-  at https://thirdiron.com/api-request. **TODO: both are currently unset
-  (expected); the script runs in keyless WAYFless mode until they arrive.**
-- Without creds, or on any HTTP error, the script prints the keyless WAYFless
-  fallback `https://libkey.io/libraries/<LIBKEY_ID|ASU_ID_TODO>/<doi-or-pmid>`
+- Credentials (terminal-settable, never committed): `LIBKEY_ID` defaults to
+  **158 = ASU** (verified: ASU's libguide links `browzine.com/libraries/158`
+  as "BrowZine at ASU Library", and the rendered
+  `libkey.io/libraries/158/<doi>` page reads "Access Provided By Arizona
+  State University Library"). Only `LIBKEY_KEY` (alias `LIBKEY_API_KEY`) is
+  still TODO — request the API key at https://thirdiron.com/api-request;
+  the script runs in keyless WAYFless mode until it arrives.
+- Without the key, or on any HTTP error, the script prints the keyless WAYFless
+  fallback `https://libkey.io/libraries/158/<doi-or-pmid>`
   plus a one-line note — never an error.
 - Disk-fetch policy: save article PDFs to disk only when LibKey reports
   `openAccess: true`; otherwise link, don't fetch.
