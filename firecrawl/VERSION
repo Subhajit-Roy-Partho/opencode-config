@@ -1,0 +1,11 @@
+FIRECRAWL_SOURCE_TAG=v2.11.162
+FIRECRAWL_SOURCE_COMMIT=7666c1f
+FIRECRAWL_SOURCE_REPO=https://github.com/firecrawl/firecrawl.git
+FIRECRAWL_SOURCE_DIR=firecrawl-src
+# Prebuilt images preferred over source build (per setup plan).
+# ghcr.io/firecrawl/firecrawl has no v2.11.162 tag; :latest used instead.
+# Digests recorded at setup time (2026-09-22):
+FIRECRAWL_IMAGE=ghcr.io/firecrawl/firecrawl:latest@sha256:eab2b6c7b67de38f4c7d5980683aaa6d5088dc3a69b85f70af6da8e632109f42
+PLAYWRIGHT_IMAGE=ghcr.io/firecrawl/playwright-service:latest@sha256:df1a393ce8bfc3801570a826a9b0dcc400ae48789adb4a0ad9d6cbf0229b059b
+NUQ_POSTGRES_IMAGE=ghcr.io/firecrawl/nuq-postgres:latest@sha256:9b638af78d99873bc0ba2b57c9cbcd01df6ce96efeaa72d36cfbe0f76521e8fc
+API_BUILD_SHA=ffa4fec91a3eccfc929bb49d4844ff09b98a0039

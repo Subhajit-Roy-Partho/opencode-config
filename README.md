@@ -80,6 +80,7 @@ Only vars verified below are documented; anything else is marked unverified.
 | `OPENCODE_CONFIG_DIR` / `OPENCODE_LOG_DIR` / `OPENCODE_TUI_CONFIG` | Yes — referenced in slim dist (consumed by opencode host) | Override config dir, log dir, TUI config path. |
 | NanoGPT API key for the `nano-gpt` provider | **Unverified** — no key is stored in this repo; set whatever `https://nano-gpt.com` docs say (no `apiKey` in `provider.options` by design) | Authenticates the custom NanoGPT provider. |
 | Composio credentials | **Unverified** — remote MCP, browser login required (currently 401) | Authenticates the Composio MCP server. |
+| `LIBKEY_ID` / `LIBKEY_KEY` (`LIBKEY_API_KEY` alias) | **Unset (expected)** — request at https://thirdiron.com/api-request; script falls back to keyless WAYFless links until set | ASU numeric Library ID + API key for `libkey/libkey_lookup.sh`. |
 
 No API keys are stored in this repo. `service.json` (if present) is local-only
 and must never be committed.
@@ -114,6 +115,31 @@ and must never be committed.
 | `arxiv` | local (keyless) | `bunx @cyanheads/arxiv-mcp-server` | None. Fetched on first use. |
 | `openalex` | local (keyless) | `bunx @cyanheads/openalex-mcp-server` | None. Fetched on first use. |
 | `context7` | local (keyless) | `npx -y @upstash/context7-mcp` | None. Fetched on first use. |
+| `firecrawl-mcp` | local (no-auth) | `npx -y firecrawl-mcp@3.23.7`, `FIRECRAWL_API_URL=http://localhost:3002` | None — self-hosted stack in `../firecrawl` (docker). `timeout: 30000` (cold starts are slow; the 5s default false-negatives). Docs-first: the API may not be up yet. |
+
+Tool fallback (no repo `AGENTS.md`, so the rule lives here): try
+`firecrawl-mcp_*` tools first; on connection/timeout failure fall back to
+built-in `webfetch`/`websearch`; never treat the fallback as an error.
+
+## LibKey lookup (`libkey/`, keyless-safe)
+
+- Script: `libkey/libkey_lookup.sh --doi <DOI>` or `--pmid <PMID>`
+  (bash + curl + jq; `chmod +x` already set). Prints title, bestLink,
+  recommendedLinkText, openAccess, retraction / expression-of-concern flags,
+  and browzineWebLink on success.
+- Credentials (terminal-settable, never committed): `LIBKEY_ID` = ASU numeric
+  Library ID, `LIBKEY_KEY` (alias `LIBKEY_API_KEY`) = API key — request both
+  at https://thirdiron.com/api-request. **TODO: both are currently unset
+  (expected); the script runs in keyless WAYFless mode until they arrive.**
+- Without creds, or on any HTTP error, the script prints the keyless WAYFless
+  fallback `https://libkey.io/libraries/<LIBKEY_ID|ASU_ID_TODO>/<doi-or-pmid>`
+  plus a one-line note — never an error.
+- Disk-fetch policy: save article PDFs to disk only when LibKey reports
+  `openAccess: true`; otherwise link, don't fetch.
+- TODO (custom-tool wiring): this repo has no custom-tool pattern yet (no
+  `tools/` or `.opencode/tools/` convention), so the script is currently
+  invoked via `bash`/`execute`. Wire it as a native OpenCode custom tool once
+  a repo convention is chosen — do not invent a one-off pattern.
 
 ## Preserved model choices (do not change casually)
 
@@ -127,6 +153,7 @@ and must never be committed.
 
 - `opencode.jsonc` — main config (tracked).
 - `plugins/*.js` — local v2 plugins (tracked).
+- `libkey/libkey_lookup.sh` — LibKey article lookup with WAYFless fallback (tracked, executable).
 - `cli.json` — v2 TUI config (`$schema: …/v2/cli.json`; untracked, machine-local).
 - `tui.json` — legacy TUI config (tracked, left for v1 branches).
 - `package.json` / `package-lock.json` / `bun.lock` — **tracked on the v2

@@ -195,6 +195,15 @@
       "type": "local",
       "command": ["npx", "-y", "@upstash/context7-mcp"],
       "enabled": true
+    },
+    // Self-hosted Firecrawl (../firecrawl docker stack, no-auth local instance).
+    // Docs-first: API may not be up yet — agents must fall back, not error (see README).
+    "firecrawl-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "firecrawl-mcp@3.23.7"],
+      "environment": { "FIRECRAWL_API_URL": "http://localhost:3002" },
+      "enabled": true,
+      "timeout": 30000
     }
   },
   "command": {
