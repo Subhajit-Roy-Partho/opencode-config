@@ -107,6 +107,26 @@ and must never be committed.
 `@opencode-ai/plugin` stays in `package.json` for plugin type-checking only
 (local plugins use JSDoc `@type {import("@opencode-ai/plugin").Plugin}`).
 
+## Prompt queue (`/queue`)
+
+Normal prompts steer immediately (untouched). `/queue <text>` holds text in
+`~/.config/opencode/.queue.md` and releases it only after background work
+finishes.
+
+| Command | Action |
+|---|---|
+| `/queue <text>` | Append `<text>` + UTC timestamp; replies with position in queue. |
+| `/queue-status` | List pending entries (oldest first). Never executes them. |
+| `/queue-run` | Manually drain now, oldest first. |
+| `/queue-clear` | Drop all pending entries without running them. |
+
+Drain is approximated, not exact: opencode has no native `task.completed`
+hook, so `plugins/queue-drain.js` debounces `session.idle` by 2s, re-checks
+the session status map (no busy/retry self or children), then pops the
+oldest entry via `client.session.prompt`, looping until the queue is empty
+or something goes busy. If the approximation misses, `/queue-run` is the
+manual escape hatch. `.queue.md` is local-only and git-ignored.
+
 ## MCP servers (`mcp`, flat map in file)
 
 | Server | Type | Command | Auth |
