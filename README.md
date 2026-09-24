@@ -164,6 +164,38 @@ built-in `webfetch`/`websearch`; never treat the fallback as an error.
   invoked via `bash`/`execute`. Wire it as a native OpenCode custom tool once
   a repo convention is chosen — do not invent a one-off pattern.
 
+## Scholarly search (Scopus / Crossref / Semantic Scholar wrappers)
+
+No official MCP servers exist for these three APIs, so bash wrappers
+(same pattern as `libkey/libkey_lookup.sh`: bash + curl + jq, `chmod +x`,
+arg parsing `--query/--doi`, credentials via env only and never printed,
+keyless/error fallback printing a useful fallback + one-line note + exit 0)
+are the integration — invoke via `bash`/`execute` until a repo custom-tool
+convention is chosen.
+
+- `scopus/scopus_lookup.sh --query TEXT | --doi DOI` — TITLE-ABS-KEY search
+  (count 5, STANDARD view). Prints title, first author, venue, date, DOI,
+  citedby-count, scopus URL per hit.
+- `crossref/crossref_lookup.sh --query TEXT | --doi DOI` — `query.bibliographic`
+  (rows 5, ranked by score + is-referenced-by-count); DOI mode prints full
+  citation fields. No key required; sends identifying User-Agent, appends
+  `mailto=` when set, sleeps ~0.4s (polite pool).
+- `semantic-scholar/s2_lookup.sh --query TEXT | --doi DOI` — limit 5, fields
+  title/authors/year/abstract/citationCount/influentialCitationCount/
+  openAccessPdf/externalIds/venue/url; DOI mode uses the `DOI:` prefix.
+  Keyless sleep 3s, keyed sleep 1s.
+
+| Variable | Required | Where it comes from |
+|---|---|---|
+| `SCOPUS_API_KEY` | Yes for Scopus | https://dev.elsevier.com |
+| `ELSEVIER_INST_TOKEN` | Optional (off-campus) | Elsevier support; full Scopus views need campus IP / ASU VPN or this `X-ELS-Insttoken` alongside the key |
+| `CROSSREF_MAILTO` | Optional | Your contact email (polite pool) |
+| `SEMANTIC_SCHOLAR_API_KEY` (`S2_API_KEY` alias) | Optional | https://www.semanticscholar.org/product/api#api-key-dashboard — keyless works (rate-limited), keyed is faster |
+
+Scopus ASU note: full views need campus IP/VPN or InstToken; off-campus with
+key only you may get partial results. Without `SCOPUS_API_KEY` the script
+suggests the Crossref / Semantic Scholar wrappers instead.
+
 ## Preserved model choices (do not change casually)
 
 - Top default: `opencode/big-pickle` (free stealth model on opencode Zen).
