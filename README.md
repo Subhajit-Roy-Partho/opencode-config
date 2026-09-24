@@ -36,6 +36,8 @@ opencode plugin list       # every row must have an ID, no "-" entries
 opencode debug config      # stderr must be empty
 ```
 
+> Agents: this repo's `AGENTS.md` holds the tool-routing policy (web + scholarly lookup order) — follow it.
+
 ## v2 file shape (read before editing `opencode.jsonc`)
 
 opencode v2 normalizes config at load: the **file** uses one shape, `opencode
