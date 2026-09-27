@@ -1,1 +1,0 @@
-/home/subho/.cache/opencode/packages/opencode-copilot-plugin@latest/node_modules/opencode-copilot-plugin/commands/copilot-inspect.md
