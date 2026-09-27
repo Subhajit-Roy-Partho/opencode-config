@@ -34,7 +34,47 @@ opencode auth list          # verify
 # 6. Verify zero-error startup
 opencode plugin list       # every row must have an ID, no "-" entries
 opencode debug config      # stderr must be empty
+
+# 7. Scholarly API keys (see "Scholarly API keys on a fresh system" below)
 ```
+
+> Agents: this repo's `AGENTS.md` holds the tool-routing policy (web + scholarly lookup order) — follow it.
+
+## Scholarly API keys on a fresh system
+
+Key sources (request once, reuse everywhere): Scopus → https://dev.elsevier.com;
+Semantic Scholar → https://www.semanticscholar.org/product/api#api-key-dashboard;
+LibKey → https://thirdiron.com/api-request; `ELSEVIER_INST_TOKEN` → Elsevier
+support (off-campus full Scopus views only — on ASU VPN you don't need it).
+
+Put the exports in `~/.zshenv` (`chmod 600`), **not** `~/.zshrc` alone:
+opencode's bash tool is non-interactive and never sources `~/.zshrc`, so keys
+that live only there show as `UNSET` to the wrappers and every Scopus/LibKey
+call degrades to its keyless fallback.
+
+```bash
+# ~/.zshenv — sourced by every zsh invocation (interactive or not)
+export SCOPUS_API_KEY="..."            # required for scopus/
+export SEMANTIC_SCHOLAR_API_KEY="..."  # optional (keyless works, rate-limited)
+export LIBKEY_KEY="..."                # optional (keyless WAYFless links until set)
+export ELSEVIER_INST_TOKEN="..."       # optional (off-campus; else ASU VPN)
+export CROSSREF_MAILTO="you@example.com"  # optional (polite pool)
+```
+
+If your keys must stay in `~/.zshrc` (e.g. canonical names referencing
+intermediate vars), mirror those lines into `~/.zshenv` instead — base vars
+first, then the referencing lines, so the references expand.
+
+Verify (status only — never echo values):
+
+```bash
+for v in SCOPUS_API_KEY SEMANTIC_SCHOLAR_API_KEY LIBKEY_KEY ELSEVIER_INST_TOKEN CROSSREF_MAILTO; do
+  val=$(printenv "$v"); [ -n "$val" ] && echo "$v: SET" || echo "$v: UNSET"
+done
+./scopus/scopus_lookup.sh --doi 10.1016/j.cell.2020.02.052  # expect citedbyCount, not fallback
+```
+
+No keys are ever committed to this repo.
 
 > Agents: this repo's `AGENTS.md` holds the tool-routing policy (web + scholarly lookup order) — follow it.
 
