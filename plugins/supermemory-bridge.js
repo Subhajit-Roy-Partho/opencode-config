@@ -21,13 +21,23 @@
  *
  * Requires SUPERMEMORY_API_KEY (or an interactive login); without it
  * the upstream factory disables itself and the bridge is a no-op.
+ *
+ * NOTE: the upstream import is LAZY and absolute (see setup). opencode
+ * loads local .js plugins through a pipeline where bare npm imports at
+ * module top level fail to resolve ("Cannot find package"), so a static
+ * `import ... from "opencode-supermemory"` breaks the whole plugin.
  */
-import { SupermemoryPlugin } from "opencode-supermemory"
+const CONFIG_DIR = "/Users/subhajitrouy/.config/opencode"
 
 const setup = async (ctx) => {
   let stopped = false
   const disposers = []
   try {
+    const { pathToFileURL } = await import("node:url")
+    const entry = pathToFileURL(
+      `${CONFIG_DIR}/node_modules/opencode-supermemory/dist/index.js`,
+    ).href
+    const { SupermemoryPlugin } = await import(entry)
     const directory =
       typeof ctx.location?.directory === "string" && ctx.location.directory
         ? ctx.location.directory
@@ -114,6 +124,5 @@ const setup = async (ctx) => {
 
 export default {
   id: "supermemory-bridge",
-  server: SupermemoryPlugin,
   setup,
 }
