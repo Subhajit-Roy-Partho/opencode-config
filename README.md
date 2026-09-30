@@ -225,7 +225,16 @@ convention is chosen.
 - `semantic-scholar/s2_lookup.sh --query TEXT | --doi DOI` — limit 5, fields
   title/authors/year/abstract/citationCount/influentialCitationCount/
   openAccessPdf/externalIds/venue/url; DOI mode uses the `DOI:` prefix.
-  Keyless sleep 3s, keyed sleep 1s.
+  Keyless sleep 3s, keyed sleep 1s. On HTTP 429 back off and retry.
+- `arxiv/arxiv_lookup.sh --query TEXT | --id ID` — keyless export.arxiv.org
+  REST (max 5, relevance-sorted); bash fallback for the `arxiv` MCP
+  (`arxiv_search`, `arxiv_get_metadata`, `arxiv_read_paper`).
+- `openalex/openalex_lookup.sh --query TEXT | --doi DOI` — per-page 5, fields
+  title/authors/venue/year/DOI/cited_by_count/OA status + best OA URL;
+  bash fallback for the `openalex` MCP (`openalex_search_entities`,
+  `openalex_resolve_name`, `openalex_get_citation_graph`). Accepts
+  `OPENALEX_MAILTO` (else `CROSSREF_MAILTO` alias) + optional
+  `OPENALEX_API_KEY`; retries politely on 429.
 
 | Variable | Required | Where it comes from |
 |---|---|---|

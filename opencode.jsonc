@@ -99,6 +99,9 @@
     },
     "designer": {
       "model": "opencode/muse-spark-1.3-contributor-free"
+    },
+    "deep-research": {
+      "model": "opencode-go/muse-spark-1.3-contributor"
     }
   },
   "provider": {
@@ -420,6 +423,19 @@
       "type": "local",
       "command": ["npx", "-y", "firecrawl-mcp@3.23.7"],
       "environment": { "FIRECRAWL_API_URL": "http://localhost:3002" },
+      "enabled": true,
+      "timeout": 30000
+    },
+    // Firecrawl Cloud (api.firecrawl.dev) — enables the research_* paper
+    // tools that 404 on self-hosted. Key via {env:} reference so no secret
+    // is committed; set FIRECRAWL_API_KEY in ~/.zshenv, then restart opencode.
+    "firecrawl-cloud": {
+      "type": "local",
+      "command": ["npx", "-y", "firecrawl-mcp@3.23.7"],
+      "environment": {
+        "FIRECRAWL_API_URL": "https://api.firecrawl.dev",
+        "FIRECRAWL_API_KEY": "{env:FIRECRAWL_API_KEY}"
+      },
       "enabled": true,
       "timeout": 30000
     },
