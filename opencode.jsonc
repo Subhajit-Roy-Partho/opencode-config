@@ -427,14 +427,14 @@
       "timeout": 30000
     },
     // Firecrawl Cloud (api.firecrawl.dev) — enables the research_* paper
-    // tools that 404 on self-hosted. Key via {env:} reference so no secret
-    // is committed; set FIRECRAWL_API_KEY in ~/.zshenv, then restart opencode.
+    // tools that 404 on self-hosted. Key is sourced from the gitignored
+    // .firecrawl-env file at spawn time (server env is unreliable), so no
+    // secret is committed; restart opencode after config changes.
     "firecrawl-cloud": {
       "type": "local",
-      "command": ["npx", "-y", "firecrawl-mcp@3.23.7"],
+      "command": ["sh", "-c", "set -a; . ~/.config/opencode/.firecrawl-env; exec npx -y firecrawl-mcp@3.23.7"],
       "environment": {
-        "FIRECRAWL_API_URL": "https://api.firecrawl.dev",
-        "FIRECRAWL_API_KEY": "{env:FIRECRAWL_API_KEY}"
+        "FIRECRAWL_API_URL": "https://api.firecrawl.dev"
       },
       "enabled": true,
       "timeout": 30000

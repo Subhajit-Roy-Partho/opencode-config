@@ -4,3 +4,7 @@ package-lock.json
 bun.lock
 firecrawl/.env
 .queue.md
+# Local-only secrets — never commit
+service.json
+.firecrawl-env
+*.bak*
