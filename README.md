@@ -247,6 +247,25 @@ Scopus ASU note: full views need campus IP/VPN or InstToken; off-campus with
 key only you may get partial results. Without `SCOPUS_API_KEY` the script
 suggests the Crossref / Semantic Scholar wrappers instead.
 
+## Task handover
+
+Claude → OpenCode for long/exec-heavy work; OpenCode → Claude for a second
+opinion or Claude-only abilities. Attach `handoff/HANDOFF.md` context
+(copied from `handoff/HANDOFF.template.md`) to every handover.
+
+```bash
+./handoff/to-opencode.sh "prompt..."   # or: -f prompt-file
+./handoff/to-claude.sh "prompt..."     # or: -f prompt-file
+# Model override: OPENCODE_HANDOFF_MODEL=provider/model to-opencode.sh ...
+```
+
+Per-task logs land in `/tmp/opencode/handoff-<ts>-<side>.log` (prompt +
+output + exit code). Neither script injects permission-bypass flags
+(`--dangerously-skip-permissions` requires explicit user opt-in, never
+scripted). Shared memory: with `SUPERMEMORY_API_KEY` set, both sides read
+the same repo container (incl. legacy `claudecode_*`/`opencode_*` tags),
+so memory written from either side is visible to the other.
+
 ## Preserved model choices (do not change casually)
 
 - Top default: `opencode/big-pickle` (free stealth model on opencode Zen).

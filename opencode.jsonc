@@ -16,7 +16,6 @@
     "auto": true
   },
   "plugin": [
-    "./plugins/supermemory-bridge.js",
     "oh-my-opencode-slim",
     "./plugins/env-protection.js",
     "./plugins/memory-compaction.js",
@@ -24,7 +23,8 @@
     "./plugins/queue-drain.js",
     "./plugins/shell-strategy.js",
     "./plugins/todo-tracker.js",
-    "./plugins/afm-bare.js"
+    "./plugins/afm-bare.js",
+    "opencode-supermemory@latest"
   ],
   "agent": {
     "afm": {
@@ -521,5 +521,15 @@
       "template": "Count the `## ` entries in `~/.config/opencode/.queue.md` with the `read` tool FIRST, then clear the prompt queue file using the `bash` tool:\n\n```bash\n: > ~/.config/opencode/.queue.md\n```\n\nThen reply confirming how many entries were dropped, e.g. \"Dropped 3 queued prompt(s).\" If the queue was already empty, reply \"Queue was already empty.\"",
       "description": "Drop all pending /queue prompts without running them"
     }
-  }
+  },
+  "plugins": [
+    "opencode-supermemory"
+  ],
+  "permissions": [
+    {
+      "action": "supermemory_recall",
+      "resource": "*",
+      "effect": "allow"
+    }
+  ]
 }

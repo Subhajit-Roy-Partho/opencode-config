@@ -24,6 +24,11 @@ h. General web (`firecrawl_search`, then `firecrawl_agent` for gap questions) �
 - `@deep-research` (`agents/deep-research.md` + `skills/deep-research/SKILL.md`) runs ONLY on explicit user request. The orchestrator and all other specialists must never delegate to it uninvited (see `oh-my-opencode-slim/orchestrator_append.md`); routine research belongs to `@librarian` / `@explorer`.
 - Its workspace is `~/Documents/deep-research/<topic-slug>/` (scaffold via `deep-research/init-topic.sh`); nothing is written outside that folder.
 
+## Task handover
+
+- Claude→OpenCode for long/exec-heavy work via `handoff/to-opencode.sh`; OpenCode→Claude via `handoff/to-claude.sh` (`claude -p` headless; never inject permission-bypass flags).
+- Always attach `handoff/HANDOFF.md` context (copy of `handoff/HANDOFF.template.md`); log outcomes to `~/claude-actions.log`.
+
 ## Rules
 
 - Credentials come ONLY from env vars; never ask the user to paste keys into chat, never print them.
