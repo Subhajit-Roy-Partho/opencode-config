@@ -5,8 +5,11 @@
   // forms (plugins/agents/providers/...) appear only in `opencode debug config`
   // resolved output — do NOT rename file keys to plural, the schema rejects them.
   "autoupdate": true,
-  // Big Pickle is a free stealth model on opencode Zen (https://opencode.ai/zen)
-  "model": "opencode/big-pickle",
+  // Default model for this PC: Muse Spark 1.3 contributor via opencode-go
+  // (output capped at 8000 in provider.models below — uncapped requests trip
+  // Meta's per-minute output-token rate limit). Big Pickle (opencode/big-pickle)
+  // stays available on Zen as fallback: `opencode run --model opencode/big-pickle`.
+  "model": "opencode-go/muse-spark-1.3-contributor",
   "permission": "allow",
   "share": "manual",
   "compaction": {
@@ -442,7 +445,7 @@
     // Local weather (stdio MCP, no deps, wttr.in) — restored from pre-v2 backup.
     "weather": {
       "type": "local",
-      "command": ["node", "/Users/subhajitrouy/.config/opencode/mcp-weather/weather.js"],
+      "command": ["node", "/home/subho/.config/opencode/mcp-weather/weather.js"],
       "enabled": true
     },
     // Desktop/browser automation (fetched on first use via npx).

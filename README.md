@@ -250,9 +250,9 @@ suggests the Crossref / Semantic Scholar wrappers instead.
 ## Preserved model choices (do not change casually)
 
 - Top default: `opencode/big-pickle` (free stealth model on opencode Zen).
-- Lane agents `code-reviewer, architect, test-writer, debugger, explorer, fixer,
-  librarian, oracle, designer` → `opencode-go/muse-spark-1.3-contributor`.
-- `vision` → `opencode/muse-spark-1.3-contributor-free` (explicit choice).
+- Lane agents `code-reviewer, architect, test-writer, debugger, vision,
+  explorer, fixer, librarian, oracle, designer` → `opencode/muse-spark-1.3-contributor-free`
+  (only `deep-research` still uses `opencode-go/muse-spark-1.3-contributor`).
 - `nano-gpt` custom provider + full model table (NanoGPT, OpenAI-compatible).
 
 ## Files

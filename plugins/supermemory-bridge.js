@@ -27,7 +27,7 @@
  * module top level fail to resolve ("Cannot find package"), so a static
  * `import ... from "opencode-supermemory"` breaks the whole plugin.
  */
-const CONFIG_DIR = "/Users/subhajitrouy/.config/opencode"
+const CONFIG_DIR = (process.env.HOME || "/home/subho") + "/.config/opencode"
 
 const setup = async (ctx) => {
   let stopped = false
