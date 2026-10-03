@@ -3,6 +3,16 @@
 Agents: read this file for tool-routing policy before doing research.
 Human details live in `README.md`; this file is the routing rule.
 
+## Agent lanes (who does what — no router exists, this rule is the router)
+
+- Implementation, edits, installs, scoped build/test: **`fixer`** — always, never `general`, never the orchestrator serially.
+- Codebase recon (what exists, where): **`explorer`** (read-only).
+- Library docs, API references, external research: **`librarian`** (read-only).
+- Architecture, risky trade-offs, persistent bugs, review: **`oracle`**.
+- User-visible UI/UX: **`designer`**.
+- **`general`** only for mixed multi-step work no single lane covers; it may open `explorer`/`librarian` recon sub-lanes (explicitly allowed) but must not implement serially when `fixer` fits.
+- Lanes may spawn `explorer`/`librarian` sub-lanes for missing context (`subagent_depth: 2` allows one nested level; never chain deeper). Credentials env-only, never printed.
+
 ## Web pages
 
 - Try `firecrawl-mcp_*` tools first (local Docker, `FIRECRAWL_API_URL=http://localhost:3002`, `timeout: 30000` for cold starts).
