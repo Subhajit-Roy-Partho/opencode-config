@@ -23,8 +23,7 @@
     "./plugins/queue-drain.js",
     "./plugins/shell-strategy.js",
     "./plugins/todo-tracker.js",
-    "./plugins/afm-bare.js",
-    "opencode-supermemory@latest"
+    "./plugins/afm-bare.js"
   ],
   "agent": {
     "afm": {
@@ -522,8 +521,14 @@
       "description": "Drop all pending /queue prompts without running them"
     }
   },
+  // OpenCode 2 loads the package's ./server export (the only module with a
+  // default export — verified: dist/server.js keys=["default"], root has none).
+  // Bare specifiers fail two ways here (root LoadError; subpath treated as an
+  // npm package name -> NpmInstallFailedError), so this points at a local shim
+  // that re-exports the 2.0.15 server entry (see plugins/supermemory-server.js).
+  // The V1 `plugin[]` root entry was removed: it fails on the v2 runtime.
   "plugins": [
-    "opencode-supermemory"
+    "./plugins/supermemory-server.js"
   ],
   "permissions": [
     {

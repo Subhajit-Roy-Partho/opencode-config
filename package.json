@@ -2,6 +2,6 @@
   "dependencies": {
     "@opencode-ai/plugin": "1.18.32",
     "oh-my-opencode-slim": "^2.0.5",
-    "opencode-supermemory": "^2.0.13"
+    "opencode-supermemory": "^2.0.15"
   }
 }
