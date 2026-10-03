@@ -424,15 +424,17 @@
       "url": "https://connect.composio.dev/mcp",
       "enabled": true
     },
-    // Free, keyless paper/docs servers (fetched on first use via bunx/npx)
+    // Free, keyless paper/docs servers (fetched on first use via npx).
+    // NOTE: must use npx, NOT bunx — bun's extractor chokes on these
+    // packages (FileNotFound copying changelog files -> exit 127/1).
     "arxiv": {
       "type": "local",
-      "command": ["bunx", "@cyanheads/arxiv-mcp-server"],
+      "command": ["npx", "-y", "@cyanheads/arxiv-mcp-server"],
       "enabled": true
     },
     "openalex": {
       "type": "local",
-      "command": ["bunx", "@cyanheads/openalex-mcp-server"],
+      "command": ["npx", "-y", "@cyanheads/openalex-mcp-server"],
       "enabled": true
     },
     "context7": {
