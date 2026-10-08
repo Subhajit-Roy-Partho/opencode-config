@@ -206,6 +206,21 @@ built-in `webfetch`/`websearch`; never treat the fallback as an error.
   invoked via `bash`/`execute`. Wire it as a native OpenCode custom tool once
   a repo convention is chosen — do not invent a one-off pattern.
 
+## ASU Library MCP (`asu-library`, browser-backed full text)
+
+- Source: **github.com/Subhajit-Roy-Partho/asu-library-mcp** (cloned at
+  `~/Documents/Github/asu-library-mcp`; not vendored here).
+- What it does: drives the signed-in Firefox session — `asu_search` (One Search,
+  DOI works as query), `asu_read` (ASU/Ex Libris pages), `asu_fulltext` (DOI →
+  EZproxy-resolved article), `asu_fetch` (PDFs + supplementary files),
+  `asu_open` + `asu_status`.
+- MCP entry `asu-library` in `opencode.jsonc` points at that repo's `server.py`.
+  Clients share one Firefox bridge on port 8765 (first process owns it).
+- Requires: Firefox running + bridge extension loaded (`about:debugging` →
+  load temporary add-on; drops on every Firefox restart) + ASU sign-in at
+  lib.asu.edu. If tools fail, `asu_status` first: stale port owner → kill it;
+  `bridgeConnected: false` → reload extension; `signedIn: false` → re-login.
+
 ## Scholarly search (Scopus / Crossref / Semantic Scholar wrappers)
 
 No official MCP servers exist for these three APIs, so bash wrappers

@@ -491,6 +491,14 @@
       "type": "local",
       "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
       "enabled": true
+    },
+    // ASU Library through the signed-in Firefox (github.com/Subhajit-Roy-Partho/asu-library-mcp).
+    // Shares one Firefox bridge with other clients (first process owns the port,
+    // later ones forward to it), see that repo's docs/CLIENTS.md.
+    "asu-library": {
+      "type": "local",
+      "command": ["python3", "/home/subho/Documents/Github/asu-library-mcp/server.py"],
+      "enabled": true
     }
   },
   "command": {
