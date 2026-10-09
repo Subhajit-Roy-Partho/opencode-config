@@ -55,14 +55,13 @@
       }
     },
     "afm-agent": {
-      "description": "Apple Foundation Models via tool-voice-proxy — narrated JSON envelopes translated into real tool calls (bash/webfetch/weather MCP)",
+      "description": "Apple Foundation Models via tool-voice-proxy — narrated JSON envelopes translated into real tool calls (bash/webfetch)",
       "mode": "primary",
       "model": "apple-fm/system",
       "tools": {
         "*": false,
         "bash": true,
-        "webfetch": true,
-        "weather_get_temperature": true
+        "webfetch": true
       }
     },
     "code-reviewer": {
@@ -469,12 +468,6 @@
       },
       "enabled": true,
       "timeout": 30000
-    },
-    // Local weather (stdio MCP, no deps, wttr.in) — restored from pre-v2 backup.
-    "weather": {
-      "type": "local",
-      "command": ["node", "/home/subho/.config/opencode/mcp-weather/weather.js"],
-      "enabled": true
     },
     // Desktop/browser automation (fetched on first use via npx).
     "computer-use": {
