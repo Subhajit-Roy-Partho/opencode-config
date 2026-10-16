@@ -3,5 +3,7 @@ node_modules/
 npm-debug.log*
 supermemory.json
 supermemory.jsonc
+# Local secret (API password) — never commit.
+service.json
 .DS_Store
 *.log

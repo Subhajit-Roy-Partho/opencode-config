@@ -1,4 +1,9 @@
-export const TaskContinuity = async (ctx) => {
+// Task continuity: resume in-progress work automatically after compaction.
+//
+// New plugin format required by opencode >= 2.0 (default export with id + setup).
+// Old named-export format ("export const X = ...") fails to load with:
+//   "Plugin must export a default definition with an id and an effect or setup function."
+async function setup(ctx) {
   return {
     "experimental.session.compacting": async (input, output) => {
       output.context.push(
@@ -10,3 +15,5 @@ export const TaskContinuity = async (ctx) => {
     },
   }
 }
+
+export default { id: "task-continuity", setup }
