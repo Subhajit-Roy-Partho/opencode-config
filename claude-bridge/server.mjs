@@ -9,7 +9,13 @@ import { realpathSync } from 'node:fs';
 const DEFAULT_MODEL = process.env.OPENCODE_BRIDGE_MODEL || 'opencode-go/muse-spark-1.3-contributor';
 // Workers may only operate inside this root (set per-registration).
 const ROOT = realpathSync(process.env.OPENCODE_BRIDGE_ROOT || process.cwd());
-const GUARD = 'Rules: work only inside the current directory; never run git commit/push/config; never touch files outside your assigned paths; finish with a short summary of files created/changed.';
+// A plain agent that never delegates (the default 'orchestrator' hands work to sub-agents and may end its turn before they return).
+// It is defined inline and run on a private (--standalone) opencode instance so the user's global config is untouched.
+const WORKER_CONFIG = JSON.stringify({ agent: { worker: { mode: 'primary',
+  description: 'Direct implementer: does the work itself, never delegates',
+  prompt: 'You are a direct implementer. Do all work yourself with your own file and shell tools. Never launch sub-agents or tasks. Do not end your turn until the work is finished and verified.',
+  permission: { task: 'deny' } } } });
+const GUARD = 'Rules: do the work yourself, never delegate to other agents, do not stop until finished; work only inside the current directory; never run git commit/push/config; never touch files outside your assigned paths; finish with a short summary of files created/changed.';
 const tasks = new Map();
 
 const tools = [
@@ -28,12 +34,12 @@ function inside(dir) { const r = realpathSync(dir); return r === ROOT || r.start
 function start({ prompt, cwd = ROOT, model = DEFAULT_MODEL, session }) {
   if (!inside(cwd)) throw new Error(`cwd must be inside ${ROOT}`);
   const id = randomBytes(4).toString('hex');
-  const args = ['run', '--format', 'json', '-m', model];
+  const args = ['run', '--standalone', '--agent', process.env.OPENCODE_BRIDGE_AGENT || 'worker', '--auto', '--format', 'json', '-m', model];
   const prev = session && tasks.get(session);
   if (prev?.sessionID) args.push('-s', prev.sessionID);
   args.push(`${GUARD}\n\n${prompt}`);
   const t = { id, status: 'running', started: Date.now(), text: '', sessionID: prev?.sessionID, err: '' };
-  const p = spawn('opencode', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
+  const p = spawn('opencode', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, OPENCODE_CONFIG_CONTENT: WORKER_CONFIG } });
   t.proc = p;
   createInterface({ input: p.stdout }).on('line', (l) => {
     try { const j = JSON.parse(l); t.sessionID ||= j.sessionID; if (j.type === 'text') t.text += j.part?.text ?? ''; } catch {}

@@ -7,6 +7,10 @@ Tools: `opencode_start` (async, returns task id), `opencode_status`, `opencode_r
 `opencode_cancel`, `opencode_list`. Pass `session: <task id>` to `opencode_start` to continue
 that worker's opencode session.
 
+Workers run as a plain inline `worker` agent on a private (`--standalone`) opencode instance (permission `task: deny`), not the default
+`orchestrator`, so they do the work themselves instead of delegating to sub-agents and ending their turn early. Override with
+`OPENCODE_BRIDGE_AGENT` (e.g. `build`). Your global opencode config is not modified.
+
 Safety: workers are confined to `OPENCODE_BRIDGE_ROOT` (cwd must resolve inside it), and a
 guard preamble tells them not to run git commit/push/config. Note your opencode config's
 `permission: "allow"` still applies to the worker — scope the root tightly.
