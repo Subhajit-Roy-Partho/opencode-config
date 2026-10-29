@@ -39,7 +39,7 @@ function start({ prompt, cwd = ROOT, model = DEFAULT_MODEL, session }) {
   if (prev?.sessionID) args.push('-s', prev.sessionID);
   args.push(`${GUARD}\n\n${prompt}`);
   const t = { id, status: 'running', started: Date.now(), text: '', sessionID: prev?.sessionID, err: '' };
-  const p = spawn('opencode', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, OPENCODE_CONFIG_CONTENT: WORKER_CONFIG } });
+  const p = spawn('opencode', args, { cwd, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PWD: cwd, OPENCODE_CONFIG_CONTENT: WORKER_CONFIG } }); // opencode resolves its project dir from $PWD, not the spawn cwd
   t.proc = p;
   createInterface({ input: p.stdout }).on('line', (l) => {
     try { const j = JSON.parse(l); t.sessionID ||= j.sessionID; if (j.type === 'text') t.text += j.part?.text ?? ''; } catch {}

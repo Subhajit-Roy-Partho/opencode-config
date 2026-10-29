@@ -15,6 +15,7 @@ platform, and optional native extras (`snip`) have per-arch install commands.
 | `opencode.jsonc` | Model, watcher ignores, LSP disables, agents (incl. `afm` chat + `afm-run` runner + `afm-agent` via tool-voice-proxy), slash commands (incl. `/weather` + `/search`), local weather MCP wiring, plugin list, NanoGPT + Apple (tool-voice-proxy → fm-proxy) providers |
 | `mcp-weather/weather.js` | Zero-dependency stdio MCP server: `get_temperature(city)` via wttr.in (synced to `~/.config/opencode/mcp-weather/` by `install.sh`) |
 | `tool-voice-proxy/` | Zero-dependency Node bridge (port `:1981` → `:1977`): translates the AFM model's narrated `{"tool_call":[...]}` JSON into real OpenAI `tool_calls` (synced to `~/.config/opencode/tool-voice-proxy/` by `install.sh`; see its README for the daemon command + repair pipeline) |
+| `claude-bridge/` | Zero-dependency stdio MCP server ("opencode-bridge") so Claude Code can delegate tasks to `opencode run` workers confined to a root dir. **Not** synced by `install.sh` — install into Claude Code per its README (`claude mcp add … --scope user`) |
 | `tui.json` | Theme, scroll and mouse defaults |
 | `opencode-mem.jsonc` | Seed for `opencode-mem` (auto-capture **off** until you add a backend — no placeholder-key errors) |
 | `acp.jsonc` | Seed for `opencode-acp` (context pruning) |
