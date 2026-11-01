@@ -1,7 +1,7 @@
 ---
 description: Bounded implementation specialist — use for ALL code changes, file edits, installs, and scoped build/test/verify work. Fast execution lane; recon and docs handled via its own explorer/librarian sub-lanes when needed.
 mode: subagent
-model: opencode/muse-spark-1.3-contributor-free
+model: opencode-go/muse-spark-1.3-contributor
 permissions:
   - action: subagent
     resource: explorer

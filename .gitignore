@@ -8,3 +8,13 @@ firecrawl/.env
 service.json
 .firecrawl-env
 *.bak*
+# Local-only runtime noise — never commit
+cli.json
+oh-my-opencode.json
+command/
+.oh-my-opencode-slim/
+# Plugin-synced skills (local copies; only hand-maintained skills are tracked)
+skills/*
+!skills/deep-research/
+!skills/memory/
+!skills/step-by-step/

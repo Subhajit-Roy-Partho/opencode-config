@@ -39,6 +39,10 @@ h. General web (`firecrawl_search`, then `firecrawl_agent` for gap questions) �
 - Claude→OpenCode for long/exec-heavy work via `handoff/to-opencode.sh`; OpenCode→Claude via `handoff/to-claude.sh` (`claude -p` headless; never inject permission-bypass flags).
 - Always attach `handoff/HANDOFF.md` context (copy of `handoff/HANDOFF.template.md`); log outcomes to `~/claude-actions.log`.
 
+## Finish what you start
+
+- Own every deliverable until it exists on disk AND is verified by you (path + command + observed output); a sub-lane saying "done" is a claim, not evidence. Stay in the loop on background lanes; stop only for true human blocks. Details: `oh-my-opencode-slim/orchestrator_append.md`.
+
 ## Rules
 
 - Credentials come ONLY from env vars; never ask the user to paste keys into chat, never print them.
