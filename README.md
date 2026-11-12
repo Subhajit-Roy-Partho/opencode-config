@@ -7,6 +7,24 @@ at time of writing). Lives at `~/.config/opencode/`.
 > Do not merge v1 branches into `v2` without re-checking the file-vs-runtime
 > shape rules below.
 
+## Claude Code integration
+
+[**opencode-bridge-for-claude-code**](https://github.com/Subhajit-Roy-Partho/opencode-bridge-for-claude-code) is the companion MCP server that lets
+[Claude Code](https://claude.com/claude-code) use this configuration:
+
+- **Delegate**: Claude Code hands easy and medium jobs to the agents defined here (`explorer`, `librarian`,
+  `deep-research`, `oracle`, `fixer`, `designer`, plus the bridge's built-in `worker`). The routing policy is enforced by
+  the tool: a task tier, the routing mode (blueprint / sensitive / insensitive), an agent allow-list per mode, and a
+  guard against secrets in prompts.
+- **Watch**: every opencode session on the machine can be listed (running / failed / stale), read, and renamed, using the
+  title convention `<LANE>/<agent>: <task>`.
+- **Recover**: provider errors (rate limit, quota, context length, ...) are classified with advice; only transient errors
+  of read-only agents are retried.
+
+The bridge starts each job with `opencode run --standalone --agent <name> --title "<LANE>/<agent>: <task>"`, so the agents,
+permissions and MCP servers configured in this repo are what Claude Code's delegated work runs with. Install this config
+first (branch `v2`, below), then the bridge; its README has the `claude mcp add` command.
+
 ## Install on a fresh PC
 
 ```bash
