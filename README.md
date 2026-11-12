@@ -8,6 +8,10 @@ repo is arch-independent (JS plugins, Markdown agents/skills, JSONC config). No
 binaries are committed; `install.sh` fetches the correct opencode build per
 platform, and optional native extras (`snip`) have per-arch install commands.
 
+> **Looking for the opencode v2 config?** It lives on the [`v2` branch](https://github.com/Subhajit-Roy-Partho/opencode-config/tree/v2)
+> (this default branch is the older v1-shaped config). Claude Code users: see
+> [opencode-bridge-for-claude-code](https://github.com/Subhajit-Roy-Partho/opencode-bridge-for-claude-code) for the MCP bridge that delegates to the `v2` agent roster.
+
 ## What's inside
 
 | Path | What |
